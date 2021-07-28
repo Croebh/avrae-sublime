@@ -1,0 +1,13 @@
+[
+    {
+        "caption": "Avrae",
+        "id": "avrae",
+        "children": [
+            {
+                "id": "gvar_update",
+                "caption": "Update Gvar",
+                "command": "gvar_update"
+            }
+        ]
+    }
+]

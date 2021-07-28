@@ -1,0 +1,18 @@
+[
+  {
+    "caption": "Avrae: Update Gvar",
+    "command": "gvar_update"
+  },
+  {
+    "caption": "Avrae: Get Gvar",
+    "command": "gvar_get"
+  },
+  {
+    "caption": "Avrae: Set Token",
+    "command": "update_avrae_token"
+  },
+  {
+    "caption": "Avrae: Copy Attack",
+    "command": "make_attack"
+  }
+]
