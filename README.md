@@ -1,10 +1,10 @@
 # Avrae Utilities for SublimeText
-A plugin for [Sublime Text|https://www.sublimetext.com/] containing utilities for the [Avrae|https://avrae.io] Discord bot
+A plugin for [Sublime Text](https://www.sublimetext.com/) containing utilities for the [Avrae](https://avrae.io) Discord bot
 
 ## Setup
 In order for this plugin to have your permissions to grab and update your GVARs (and in the future, workshop aliases), you need to give it your token.
 
-1. Go to [Avrae|https://avrae.io] and log in to the dashboard
+1. Go to [Avrae](https://avrae.io) and log in to the dashboard
 2. Press F12 to open the DevTools
 3. Go to the 'Application' tab
 4. On the left, select 'https://avrae.io' under 'Local Storage'
