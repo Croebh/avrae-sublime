@@ -14,27 +14,27 @@ contexts:
       embed: scope:source.json
       escape: '\]\z'
     - match: (<)[^<>]+(>)
-      scope: entity.name.constant
+      scope: entity.name.constant.draconic
     - match: ({)[^{}]+(})
-      scope: entity.name.constant
+      scope: entity.name.constant.draconic
 
 
   avrae:
-    - match: '\B\-(title|desc|image|footer|f|phrase|sb|attack|i|h|here|d|b|thumb|color)+[0-9]*\b'
-      scope: markup.raw
+    - match: '\B\-(title|desc|image|footer|f|phrase|sb|attack|i|h|here|d|b|thumb|color|adv|dis|sadv|sdis)+[0-9]*\b'
+      scope: markup.raw.draconic
     - match: '(%([0-9]+|\*)%|&([0-9]+|ARGS|\*)&)'
-      scope: markup.inserted
+      scope: markup.inserted.draconic
 
   drac:
     - match: '{{'
-      scope: meta.block, punctuation.section.block.begin entity.name.tag
+      scope: meta.block.draconic, punctuation.section.block.begin.draconic entity.name.tag.draconic
       embed: scope:source.python
       escape: '}}'
       escape_captures:
-        0: meta.block punctuation.section.block.begin entity.name.tag
+        0: meta.block.draconic punctuation.section.block.begin.draconic entity.name.tag.draconic
     - match: '<drac2>'
-      scope: meta.definition.code-fence.begin meta.tag entity.name.tag
+      scope: meta.definition.code-fence.begin.draconic meta.tag.draconic entity.name.tag.draconic
       embed: scope:source.python
       escape: '</drac2>'
       escape_captures:
-        0: meta.code-fence.definition.end meta.tag entity.name.tag
+        0: meta.code-fence.definition.end.draconic meta.tag.draconic entity.name.tag.draconic
