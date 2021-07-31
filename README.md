@@ -10,7 +10,7 @@ In order for this plugin to have your permissions to grab and update your GVARs 
 4. On the left, select 'https://avrae.io' under 'Local Storage'
 5. Copy the 'Value' next to the 'avrae-token' key
 6. In Sublime Text, open the Command Pallete
-7. Use the ``Avrae: Set Token`` command, pasting in the copied token
+7. Use the ``Preferences: Avrae Utilities Settings`` command, pasting in the copied token in the 'token' key
 
 ## Features
 This plugin contains the following features:
