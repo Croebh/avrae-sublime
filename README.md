@@ -19,7 +19,7 @@ This plugin contains the following features:
 Handy syntax highlighting for the Draconic language (Subset of Python) that Avrae uses for aliasing.
 
 ### Get and Update GVARs
-Using the ``Avrae: Get GVAR`` and ``Avrae: Update GVAR`` commands in the Command Pallete, you can retrieve and update GVARs without the need to visit the dashboard.
+Using the ``Avrae Utilities: Get GVAR`` and ``Avrae Utilities: Update GVAR`` commands in the Command Pallete, you can retrieve and update GVARs without the need to visit the dashboard.
 
 ### Copy Attack
-If you have automation written out, you can select it all and run the ``Avrae: Copy Attack`` command, and it will minify it, prepend ``!a import Test``, and copy it to your clipboard for easy testing within Discord.
+If you have automation written out, you can select it all and run the ``Avrae Utilities: Copy Attack`` command, and it will minify it, prepend ``!a import Test``, and copy it to your clipboard for easy testing within Discord.
