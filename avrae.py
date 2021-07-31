@@ -88,7 +88,7 @@ class gvarGetCommand(sublime_plugin.WindowCommand):
 class collectionGet(sublime_plugin.WindowCommand):
 
   def run(self):
-    if self.window.active_view().file_name().endswith('collection.id'):
+    if self.window.active_view().file_name() and self.window.active_view().file_name().endswith('collection.id'):
       with open(self.window.active_view().file_name()) as f:
         collection = json.load(f)
       return self.on_done(collection.get('collection'))
@@ -110,8 +110,12 @@ class collectionGet(sublime_plugin.WindowCommand):
           id_dict['aliases'][alias.get('name') + ' ' + subalias.get('name')] = subalias.get('_id')
       for alias in data.get('snippets', {}):
         id_dict['snippets'][alias.get('name')] = alias.get('_id')
-      view.run_command('select_all')
-      view.run_command('right_delete')
+      if view.file_name() and 'collection.id' in view.file_name():
+        view.run_command('select_all')
+        view.run_command('right_delete')
+      else:
+        view = self.window.new_file()
+        view.set_name('collection.id')
       view.run_command('append', {'characters' : json.dumps(id_dict, indent=2)})
 
 class test(sublime_plugin.WindowCommand):
