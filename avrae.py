@@ -19,9 +19,6 @@ headers = {
           }
 
 
-url = "https://api.avrae.io/customizations/gvars/"
-
-
 class gvarUpdateCommand(sublime_plugin.TextCommand):
 
   def run(self, edit):
@@ -41,26 +38,11 @@ class gvarUpdateCommand(sublime_plugin.TextCommand):
             gvar = gvar[:36]
 
     if gvar and len(gvar)==36:
-      try:
-        get        = avraeREST("GET", "gvars", gvar, ttl_hash=get_ttl_hash(5))
-        getStatus  = get.status_code
-        newPayload = get.json()
-        newPayload.update({"value":payload})
+      get, getStatus = avraeREST("GET", "customizations/gvars/" + gvar, ttl_hash=get_ttl_hash(5))
+      newPayload = get.json()
+      newPayload.update({"value":payload})
 
-        post       = avraeREST("POST", "gvars", gvar, json.dumps(newPayload), ttl_hash=get_ttl_hash(5))
-        postStatus = post.status_code
-
-        if getStatus == 200 and postStatus == 200:
-          sublime.status_message("Successfully updated Gvar: {}".format(gvar))
-          self.view.show_popup("<b>Successfully updated Gvar:</b> {}".format(gvar), max_width=500)
-        elif getStatus == 200 and postStatus == 403:
-          self.view.show_popup("<b>Something went wrong - Status Code 403</b><br>Double check that you have edit permissions.", max_width=500)
-      except:
-        traceback.print_exc(file=sys.stdout)
-        if getStatus == 403:
-          self.view.show_popup("<b>Something went wrong - Status Code 403</b><br>Double check your token, and that you have edit permissions.", max_width=500)
-        if getStatus == 404:
-          self.view.show_popup("<b>Something went wrong - Status Code 404</b><br>Invalid Gvar ID + gvar", max_width=500)
+      post, postStatus = avraeREST("POST", "customizations/gvars/" + gvar, json.dumps(newPayload), ttl_hash=get_ttl_hash(5))
     else:
       self.view.show_popup("<b>Something went wrong</b><br>Invalid Gvar ID - " + str(gvar), max_width=500)
 
@@ -91,37 +73,136 @@ class gvarGetCommand(sublime_plugin.WindowCommand):
         getStatus = 0
         if gvar:
             if len(gvar)==36:
-              try:
-                get = avraeREST("GET", "gvars", gvar, ttl_hash=get_ttl_hash(5))
-                getStatus = get.status_code
-              except:
-                if getStatus==403:
-                  view.show_popup("<b>Something went wrong - Status Code 403</b><br>Double check your token.", max_width=500)
-                if getStatus==404:
-                  view.show_popup("<b>Something went wrong - Status Code 404</b><br>Invalid Gvar ID + gvar", max_width=500)
-
-              if getStatus == 200:
-                print("Successfully grabbed Gvar: {}".format(gvar), getStatus)
-                sublime.status_message("Successfully grabbed Gvar: {}".format(gvar))
+              get, getStatus = avraeREST("GET", "customizations/gvars/" + gvar, ttl_hash=get_ttl_hash(5))
+              if view.file_name() and gvar in view.file_name():
+                view.run_command('select_all')
+                view.run_command('right_delete')
+              else:
                 view = self.window.new_file()
                 view.set_name(gvar + name + '.gvar')
                 view.set_syntax_file("Packages/Avrae/Draconic.sublime-syntax")
-                view.run_command('append', {'characters' : get.json().get('value')})
+              view.run_command('append', {'characters' : get.json().get('value')})
             else:
               self.view.show_popup("<b>Something went wrong</b><br>Invalid Gvar ID - " + gvar, max_width=500)
 
+class collectionGet(sublime_plugin.WindowCommand):
+
+  def run(self):
+    if self.window.active_view().file_name().endswith('collection.id'):
+      with open(self.window.active_view().file_name()) as f:
+        collection = json.load(f)
+      return self.on_done(collection.get('collection'))
+    self.window.show_input_panel("Collection ID:", "", self.on_done, None, None)
+
+  def on_done(self, text):
+    if text:
+      view = self.window.active_view()
+      get, getStatus = avraeREST("GET", "workshop/collection/" + text + '/full', ttl_hash=get_ttl_hash(5))
+      view.set_syntax_file("Packages/Avrae/Draconic.sublime-syntax")
+      data = get.json()['data']
+      id_dict = {"name": data['name'], 
+                 "collection": text, 
+                 "aliases": {},
+                 "snippets": {}}
+      for alias in data.get('aliases', {}):
+        id_dict['aliases'][alias.get('name')] = alias.get('_id')
+        for subalias in alias.get('subcommands'):
+          id_dict['aliases'][alias.get('name') + ' ' + subalias.get('name')] = subalias.get('_id')
+      for alias in data.get('snippets', {}):
+        id_dict['snippets'][alias.get('name')] = alias.get('_id')
+      view.run_command('select_all')
+      view.run_command('right_delete')
+      view.run_command('append', {'characters' : json.dumps(id_dict, indent=2)})
+
+class test(sublime_plugin.WindowCommand):
+
+  def run(self):
+    if os.path.exists(os.path.split(self.window.active_view().file_name())[0] + "\\collection.id"):
+      with open(os.path.split(self.window.active_view().file_name())[0] + "\\collection.id") as f:
+        collection = json.load(f)
+        print()
+        print(json.dumps(collection))
+        print(os.path.splitext(os.path.split(self.window.active_view().file_name())[1])[0] in collection['aliases'])
+
+class workshopContentGet(sublime_plugin.WindowCommand):
+
+  def run(self, contentType):
+    self.contentType = contentType
+    self.contentPlural = 'aliases' if self.contentType == 'alias' else 'snippets'
+    self.id = None
+    if os.path.exists(os.path.split(self.window.active_view().file_name())[0] + "\\collection.id"):
+      with open(os.path.split(self.window.active_view().file_name())[0] + "\\collection.id") as f:
+        collection = json.load(f)
+        if os.path.splitext(os.path.split(self.window.active_view().file_name())[1])[0] in collection[self.contentPlural]:
+          self.id = collection[self.contentPlural][os.path.splitext(os.path.split(self.window.active_view().file_name())[1])[0]]
+          return self.on_done(self.id)
+    self.window.show_input_panel("{} ID:".format(self.contentType.title()), "", self.on_done, None, None)
+
+  def on_done(self, content_id):
+    if content_id:
+      view = self.window.active_view()
+      get, getStatus = avraeREST("GET", "workshop/{}/".format(self.contentType) + content_id, ttl_hash=get_ttl_hash(5))
+      view.set_syntax_file("Packages/Avrae/Draconic.sublime-syntax")
+      data = get.json()['data']
+      if self.id:
+        view.run_command('select_all')
+        view.run_command('right_delete')
+        view.run_command('append', {'characters' : data['code'].replace('\r','')})
+      else:
+        view = self.window.new_file()
+        view.set_name(data['name'] + '.{}'.format(self.contentType))
+        view.set_syntax_file("Packages/Avrae/Draconic.sublime-syntax")
+        view.run_command('append', {'characters' : data['code'].replace('\r','')})
+
+
+class workshopContentUpdate(sublime_plugin.WindowCommand):
+
+  def run(self, contentType):
+    self.contentType = contentType
+    self.contentPlural = 'aliases' if self.contentType == 'alias' else 'snippets'
+    self.view = self.window.active_view()
+    self.payload = self.view.substr(sublime.Region(0, self.view.size()))
+    self.id = None
+    if os.path.exists(os.path.split(self.window.active_view().file_name())[0] + "\\collection.id"):
+      with open(os.path.split(self.window.active_view().file_name())[0] + "\\collection.id") as f:
+        collection = json.load(f)
+        if os.path.splitext(os.path.split(self.window.active_view().file_name())[1])[0] in collection[self.contentPlural]:
+          self.id = collection[self.contentPlural][os.path.splitext(os.path.split(self.window.active_view().file_name())[1])[0]]
+          return self.on_done(self.id)
+
+  def on_done(self, content_id):
+    if content_id:
+      view = self.window.active_view()
+      get, getStatus = avraeREST("post", endpoint = "workshop/{}/".format(self.contentType) + content_id + '/code', payload = json.dumps({"content": self.payload}), ttl_hash=get_ttl_hash(5))
+      self.version = get.json()['data']['version']
+      get, getStatus = avraeREST("put", endpoint = "workshop/{}/".format(self.contentType) + content_id + '/active-code', payload = json.dumps({"version": self.version}), ttl_hash=get_ttl_hash(5))       
+
 
 @lru_cache()
-def avraeREST(type: str, customization: str, id, payload: str = None, ttl_hash = None):
+def avraeREST(type: str, endpoint: str, payload: str = None, ttl_hash = None):
   del ttl_hash
   if payload is None:
     payload = ""
   token = sublime.load_settings('Avrae.sublime-settings').get('token')
   headers['Authorization'] = token
-  url = '/'.join(["https://api.avrae.io/customizations", customization, id]).strip('/')
-  print(url)
-  return requests.request(type.upper(), url , headers=headers, data = payload)
+  url = '/'.join(["https://api.avrae.io", endpoint]).strip('/')
 
+  try:
+    request = requests.request(type.upper(), url , headers=headers, data = payload)
+    requestStatus = request.status_code
+  except:
+    if requestStatus==403:
+      print("Unsuccessfully {}: {} - Double check your token".format(type.upper(), endpoint), requestStatus)
+      view.show_popup("<b>Something went wrong - Status Code 403</b><br>Double check your token.", max_width=500)
+    if requestStatus==404:
+      print("Unsuccessfully {}: {} - Invalid endpoint".format(type.upper(), endpoint), requestStatus)
+      view.show_popup("<b>Something went wrong - Status Code 404</b><br>Invalid ID", max_width=500)
+
+  if requestStatus in (200, 201):
+    print("Successfully {}: {}".format(type.upper(), endpoint), requestStatus)
+    sublime.status_message("Successfully {}: {}".format(type.upper(), endpoint))
+
+  return request, requestStatus
 
 def get_ttl_hash(seconds=900):
     """Return the same value within `seconds` time period"""

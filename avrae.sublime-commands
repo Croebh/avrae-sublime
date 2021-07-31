@@ -12,6 +12,42 @@
     "command": "make_attack"
   },
   {
+    "caption": "Avrae Utilities: Get Collection Data",
+    "command": "collection_get"
+  },
+  {
+    "caption": "Avrae Utilities: Get Workshop Alias",
+    "command": "workshop_content_get",
+    "args": 
+    {
+      "contentType": "alias"
+    }
+  },
+  {
+    "caption": "Avrae Utilities: Update Workshop Alias",
+    "command": "workshop_content_update",
+    "args": 
+    {
+      "contentType": "alias"
+    }
+  },
+  {
+    "caption": "Avrae Utilities: Get Workshop Snippet",
+    "command": "workshop_content_get",
+    "args": 
+    {
+      "contentType": "snippet"
+    }
+  },
+  {
+    "caption": "Avrae Utilities: Update Workshop Snippet",
+    "command": "workshop_content_update",
+    "args": 
+    {
+      "contentType": "snippet"
+    }
+  },
+  {
     "caption": "Preferences: Avrae Utilities Settings",
     "command": "edit_settings",
     "args":
