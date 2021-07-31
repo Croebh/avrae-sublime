@@ -1,18 +1,23 @@
 [
   {
-    "caption": "Avrae: Update Gvar",
+    "caption": "Avrae Utilities: Update Gvar",
     "command": "gvar_update"
   },
   {
-    "caption": "Avrae: Get Gvar",
+    "caption": "Avrae Utilities: Get Gvar",
     "command": "gvar_get"
   },
   {
-    "caption": "Avrae: Set Token",
-    "command": "update_avrae_token"
+    "caption": "Avrae Utilities: Copy Attack",
+    "command": "make_attack"
   },
   {
-    "caption": "Avrae: Copy Attack",
-    "command": "make_attack"
+    "caption": "Preferences: Avrae Utilities Settings",
+    "command": "edit_settings",
+    "args":
+    {
+        "base_file": "${packages}/Avrae/Avrae.sublime-settings",
+        "default": "// Avrae Settings - User\n{\n\t$0\n}\n"
+    }
   }
 ]

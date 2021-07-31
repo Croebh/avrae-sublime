@@ -6,10 +6,7 @@ from functools import lru_cache
 import time
 import sys, traceback
 
-from .utils.constants import PLATFORM
-from .utils.window_utils import open_config_rc, open_sublime_settings, open_sublime_keymap
-from .utils.window_utils import open_u_config_rc, open_u_sublime_settings, open_u_sublime_keymap
-from .utils.window_utils import get_pref, set_pref
+
 
 headers = {
             'Authorization': "",
@@ -119,7 +116,7 @@ def avraeREST(type: str, customization: str, id, payload: str = None, ttl_hash =
   del ttl_hash
   if payload is None:
     payload = ""
-  token = get_pref('token')
+  token = sublime.load_settings('Avrae.sublime-settings').get('token')
   headers['Authorization'] = token
   url = '/'.join(["https://api.avrae.io/customizations", customization, id]).strip('/')
   print(url)
@@ -131,37 +128,15 @@ def get_ttl_hash(seconds=900):
     return round(time.time() / seconds)
 
 
-class updateAvraeTokenCommand(sublime_plugin.TextCommand):
-  def run(self, edit, token):
-    return set_pref('token', token)
-
-  def input(self, args):
-    if "text" not in args:
-      return tokenInputHandler(self.view, "Token from Avrae.io localstorage")
-
-
-class tokenInputHandler(sublime_plugin.TextInputHandler):
-    def __init__(self, view, desc):
-        self.view = view
-        self.desc = desc
-
-    def placeholder(self):
-        return self.desc
-
-    def validate(self, args):
-      return bool(args)
-
-
-
-
-
 class makeAttack(sublime_plugin.WindowCommand):
 
   def run(self):
     sel = self.window.active_view().substr(self.window.active_view().sel()[0])
     sel = json.loads(sel)
+    # If we just have the automation portion selected, name it test
     if isinstance(sel, list):
       sublime.set_clipboard('!a import {"name": "Test", "automation":' + json.dumps(sel) + ',"_v": 2}')
+    # Otherwise try to grab the name of the actual attack/action
     elif isinstance(sel, dict):
       sel = {"name": sel.get('name'), "automation": sel.get('automation'), "_v": 2}
       sublime.set_clipboard('!a import ' + json.dumps(sel))
