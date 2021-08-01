@@ -9,7 +9,7 @@ contexts:
     - include : drac
     - match: '\A{'
       embed: scope:source.json
-      escape: '}\Z'
+      escape: '}\z'
     - match: '\A\['
       embed: scope:source.json
       escape: '\]\z'
