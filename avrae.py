@@ -118,23 +118,13 @@ class collectionGet(sublime_plugin.WindowCommand):
         view.set_name('collection.id')
       view.run_command('append', {'characters' : json.dumps(id_dict, indent=2)})
 
-class test(sublime_plugin.WindowCommand):
-
-  def run(self):
-    if os.path.exists(os.path.split(self.window.active_view().file_name())[0] + "\\collection.id"):
-      with open(os.path.split(self.window.active_view().file_name())[0] + "\\collection.id") as f:
-        collection = json.load(f)
-        print()
-        print(json.dumps(collection))
-        print(os.path.splitext(os.path.split(self.window.active_view().file_name())[1])[0] in collection['aliases'])
-
 class workshopContentGet(sublime_plugin.WindowCommand):
 
   def run(self, contentType):
     self.contentType = contentType
     self.contentPlural = 'aliases' if self.contentType == 'alias' else 'snippets'
     self.id = None
-    if os.path.exists(os.path.split(self.window.active_view().file_name())[0] + "\\collection.id"):
+    if self.window.active_view().file_name() and os.path.exists(os.path.split(self.window.active_view().file_name())[0] + "\\collection.id"):
       with open(os.path.split(self.window.active_view().file_name())[0] + "\\collection.id") as f:
         collection = json.load(f)
         if os.path.splitext(os.path.split(self.window.active_view().file_name())[1])[0] in collection[self.contentPlural]:
@@ -167,7 +157,7 @@ class workshopContentUpdate(sublime_plugin.WindowCommand):
     self.view = self.window.active_view()
     self.payload = self.view.substr(sublime.Region(0, self.view.size()))
     self.id = None
-    if os.path.exists(os.path.split(self.window.active_view().file_name())[0] + "\\collection.id"):
+    if self.window.active_view().file_name() and os.path.exists(os.path.split(self.window.active_view().file_name())[0] + "\\collection.id"):
       with open(os.path.split(self.window.active_view().file_name())[0] + "\\collection.id") as f:
         collection = json.load(f)
         if os.path.splitext(os.path.split(self.window.active_view().file_name())[1])[0] in collection[self.contentPlural]:
