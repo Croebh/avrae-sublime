@@ -1,12 +1,10 @@
 
+import sublime, sublime_plugin
 import json
-import sublime, sublime_plugin, os, webbrowser
+import os
 import requests
-from functools import lru_cache
 import time
-import sys, traceback
-
-
+from functools import lru_cache
 
 headers = {
             'Authorization': "",
@@ -50,11 +48,11 @@ class gvarUpdateCommand(sublime_plugin.TextCommand):
 class gvarGetCommand(sublime_plugin.WindowCommand):
 
   def run(self):
-    file_name = self.window.active_view().file_name()
     name = self.window.active_view().name()
+    self.file_name = self.window.active_view().file_name()
     self.view = self.window.active_view()
-    if file_name and file_name.endswith('.gvar'):
-      gvar = os.path.basename(file_name)
+    if self.file_name and self.file_name.endswith('.gvar'):
+      gvar = os.path.basename(self.file_name)
       if gvar and gvar.endswith('.gvar'):
         gvar = gvar[:-5]
         self.on_done(gvar)
@@ -88,8 +86,9 @@ class gvarGetCommand(sublime_plugin.WindowCommand):
 class collectionGet(sublime_plugin.WindowCommand):
 
   def run(self):
-    if self.window.active_view().file_name() and self.window.active_view().file_name().endswith('collection.id'):
-      with open(self.window.active_view().file_name()) as f:
+    self.file_name = self.window.active_view().file_name()
+    if self.file_name and self.file_name.endswith('collection.id'):
+      with open(self.file_name) as f:
         collection = json.load(f)
       return self.on_done(collection.get('collection'))
     self.window.show_input_panel("Collection ID:", "", self.on_done, None, None)
@@ -121,14 +120,16 @@ class collectionGet(sublime_plugin.WindowCommand):
 class workshopContentGet(sublime_plugin.WindowCommand):
 
   def run(self, contentType):
+    self.id = None
     self.contentType = contentType
     self.contentPlural = 'aliases' if self.contentType == 'alias' else 'snippets'
-    self.id = None
-    if self.window.active_view().file_name() and os.path.exists(os.path.split(self.window.active_view().file_name())[0] + "\\collection.id"):
-      with open(os.path.split(self.window.active_view().file_name())[0] + "\\collection.id") as f:
+    self.file_name = self.window.active_view().file_name()
+    collection_file = os.path.split(self.file_name)[0] + "\\collection.id"
+    if self.file_name and os.path.exists(collection_file):
+      with open(collection_file) as f:
         collection = json.load(f)
-        if os.path.splitext(os.path.split(self.window.active_view().file_name())[1])[0] in collection[self.contentPlural]:
-          self.id = collection[self.contentPlural][os.path.splitext(os.path.split(self.window.active_view().file_name())[1])[0]]
+        if os.path.splitext(os.path.split(self.file_name)[1])[0] in collection[self.contentPlural]:
+          self.id = collection[self.contentPlural][os.path.splitext(os.path.split(self.file_name)[1])[0]]
           return self.on_done(self.id)
     self.window.show_input_panel("{} ID:".format(self.contentType.title()), "", self.on_done, None, None)
 
@@ -157,11 +158,12 @@ class workshopContentUpdate(sublime_plugin.WindowCommand):
     self.view = self.window.active_view()
     self.payload = self.view.substr(sublime.Region(0, self.view.size()))
     self.id = None
-    if self.window.active_view().file_name() and os.path.exists(os.path.split(self.window.active_view().file_name())[0] + "\\collection.id"):
-      with open(os.path.split(self.window.active_view().file_name())[0] + "\\collection.id") as f:
+    self.file_name = self.window.active_view().file_name()
+    if self.file_name and os.path.exists(os.path.split(self.file_name)[0] + "\\collection.id"):
+      with open(os.path.split(self.file_name)[0] + "\\collection.id") as f:
         collection = json.load(f)
-        if os.path.splitext(os.path.split(self.window.active_view().file_name())[1])[0] in collection[self.contentPlural]:
-          self.id = collection[self.contentPlural][os.path.splitext(os.path.split(self.window.active_view().file_name())[1])[0]]
+        if os.path.splitext(os.path.split(self.file_name)[1])[0] in collection[self.contentPlural]:
+          self.id = collection[self.contentPlural][os.path.splitext(os.path.split(self.file_name)[1])[0]]
           return self.on_done(self.id)
 
   def on_done(self, content_id):
