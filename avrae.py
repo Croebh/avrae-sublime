@@ -123,7 +123,7 @@ class workshopContentGet(sublime_plugin.WindowCommand):
     self.id = None
     self.contentType = contentType
     self.contentPlural = 'aliases' if self.contentType == 'alias' else 'snippets'
-    self.file_name = self.window.active_view().file_name()
+    self.file_name = self.window.active_view().file_name() or ""
     collection_file = os.path.split(self.file_name)[0] + "\\collection.id"
     if self.file_name and os.path.exists(collection_file):
       with open(collection_file) as f:
