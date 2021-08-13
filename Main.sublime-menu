@@ -3,10 +3,6 @@
         "id": "tools",
         "children": [
             {
-                "caption": "-",
-                "id": "packagecommands"
-            },
-            {
                 "caption": "Avrae Utilities",
                 "id": "avrae",
                 "children": [
