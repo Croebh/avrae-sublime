@@ -1,6 +1,9 @@
 # Avrae Utilities for SublimeText
 A plugin for [Sublime Text](https://www.sublimetext.com/) containing utilities for the [Avrae](https://avrae.io) Discord bot
 
+## Important Note
+This package makes a remote connection to the Avrae API in order to collect and update the information. It only does this by request, and will not make any outward connection without being prompted to by the user.
+
 ## Setup
 In order for this plugin to have your permissions to grab and update your GVARs, Workshop Aliases, or Workshop Snippets, you need to give it your token.
 
