@@ -1,21 +1,37 @@
 [
     {
-        "caption": "Preferences",
-        "id": "preferences",
-        "mnemonic": "n",
+        "id": "tools",
         "children": [
             {
-                "caption": "Package Settings",
+                "caption": "-",
+                "id": "packagecommands"
+            },
+            {
+                "caption": "Avrae Utilities",
+                "id": "avrae",
+                "children": [
+                    {
+                        "id": "gvar_update",
+                        "caption": "Update Gvar",
+                        "command": "gvar_update"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "preferences",
+        "children": [
+            {
                 "id": "package-settings",
-                "mnemonic": "P",
                 "children": [
                     {
                         "caption": "Avrae Utilities",
                         "children": [
                             {
                                 "caption": "Settings",
-                                "command": "edit_settings", "args":
-                                {
+                                "command": "edit_settings",
+                                "args": {
                                     "base_file": "${packages}/Avrae/Avrae.sublime-settings",
                                     "default": "// Avrae Settings - User\n{\n\t$0\n}\n"
                                 }
@@ -25,17 +41,5 @@
                 ]
             }
         ]
-    },
-    {
-        "caption": "Avrae Utilities",
-        "id": "avrae",
-        "children": [
-            {
-                "id": "gvar_update",
-                "caption": "Update Gvar",
-                "command": "gvar_update"
-            }
-        ]
     }
-    
 ]
