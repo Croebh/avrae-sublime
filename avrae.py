@@ -147,13 +147,23 @@ class workshopContentGet(sublime_plugin.WindowCommand):
       get, getStatus = avraeREST("GET", "workshop/{}/".format(self.contentType) + content_id, ttl_hash=get_ttl_hash(5))
       view.set_syntax_file("Packages/Avrae/Draconic.sublime-syntax")
       data = get.json()['data']
+      self.name = data['name']
       if self.id:
         view.run_command('select_all')
         view.run_command('right_delete')
         view.run_command('append', {'characters' : data['code'].replace('\r','')})
       else:
         view = self.window.new_file()
-        view.set_name(data['name'] + '.{}'.format(self.contentType))
+        subalias = False
+        if data['parent_id']: # is it a subalias? if so, collect the names of the parent alias and prepend to file name
+          subalias = True
+          parent_id = data['parent_id']
+          while subalias:
+            get, getStatus = avraeREST("GET", "workshop/{}/".format(self.contentType) + parent_id, ttl_hash=get_ttl_hash(5))
+            parentData = get.json()['data']
+            self.name = parentData['name'] + ' ' + self.name
+            subalias = bool(parentData['parent_id'])
+        view.set_name(self.name + '.{}'.format(self.contentType))
         view.set_syntax_file("Packages/Avrae/Draconic.sublime-syntax")
         view.run_command('append', {'characters' : data['code'].replace('\r','')})
 
