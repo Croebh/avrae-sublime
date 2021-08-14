@@ -41,6 +41,14 @@ class gvarUpdateCommand(sublime_plugin.TextCommand):
       newPayload.update({"value":payload})
 
       post, postStatus = avraeREST("POST", "customizations/gvars/" + gvar, json.dumps(newPayload), ttl_hash=get_ttl_hash(5))
+      if postStatus in (200, 201):
+        self.window.active_view().show_popup(
+          '''<b>Successfully Updated Gvar:</b>
+          <ul>
+            <li>
+              <b>ID:</b> {}
+            </li>
+          </ul>'''.format(gvar), max_width=400)
     else:
       self.view.show_popup("<b>Something went wrong</b><br>Invalid Gvar ID - " + str(gvar), max_width=500)
 
@@ -158,12 +166,16 @@ class workshopContentUpdate(sublime_plugin.WindowCommand):
     self.view = self.window.active_view()
     self.payload = self.view.substr(sublime.Region(0, self.view.size()))
     self.id = None
+    self.name = None
+    self.collection_name = None
     self.file_name = self.window.active_view().file_name()
     if self.file_name and os.path.exists(os.path.split(self.file_name)[0] + "\\collection.id"):
       with open(os.path.split(self.file_name)[0] + "\\collection.id") as f:
         collection = json.load(f)
         if os.path.splitext(os.path.split(self.file_name)[1])[0] in collection[self.contentPlural]:
-          self.id = collection[self.contentPlural][os.path.splitext(os.path.split(self.file_name)[1])[0]]
+          self.name = os.path.splitext(os.path.split(self.file_name)[1])[0]
+          self.id = collection[self.contentPlural][self.name]
+          self.collection_name = collection['name']
           return self.on_done(self.id)
 
   def on_done(self, content_id):
@@ -171,7 +183,24 @@ class workshopContentUpdate(sublime_plugin.WindowCommand):
       view = self.window.active_view()
       get, getStatus = avraeREST("post", endpoint = "workshop/{}/".format(self.contentType) + content_id + '/code', payload = json.dumps({"content": self.payload}), ttl_hash=get_ttl_hash(5))
       self.version = get.json()['data']['version']
-      get, getStatus = avraeREST("put", endpoint = "workshop/{}/".format(self.contentType) + content_id + '/active-code', payload = json.dumps({"version": self.version}), ttl_hash=get_ttl_hash(5))       
+      get, getStatus = avraeREST("put", endpoint = "workshop/{}/".format(self.contentType) + content_id + '/active-code', payload = json.dumps({"version": self.version}), ttl_hash=get_ttl_hash(5)) 
+      if getStatus in (200, 201):
+        self.window.active_view().show_popup(
+          '''<b>Successfully Updated Workshop Content:</b>
+          <ul>
+            <li>
+              <b>Collection:</b> {}
+            </li>
+            <li>
+              <b>Type:</b> {}
+            </li>
+            <li>
+              <b>Name:</b> {}
+            </li>
+            <li>
+              <b>ID:</b> {}
+            </li>
+          </ul>'''.format(self.collection_name, self.contentType.title(), self.name, self.id), max_width=400)      
 
 
 @lru_cache()
