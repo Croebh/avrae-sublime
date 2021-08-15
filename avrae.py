@@ -89,7 +89,7 @@ class gvarGetCommand(sublime_plugin.WindowCommand):
               else:
                 view = self.window.new_file()
                 view.set_name(gvar + name + '.gvar')
-                view.set_syntax_file("Packages/Avrae/Draconic.sublime-syntax")
+                view.set_syntax_file("Packages/Avrae Utilities/Draconic.sublime-syntax")
               view.run_command('append', {'characters' : get.json().get('value')})
             else:
               self.view.show_popup("<b>Something went wrong</b><br>Invalid Gvar ID - " + gvar, max_width=500)
@@ -108,7 +108,7 @@ class collectionGet(sublime_plugin.WindowCommand):
     if text:
       view = self.window.active_view()
       get, getStatus = avraeREST("GET", "workshop/collection/" + text + '/full', ttl_hash=get_ttl_hash(5))
-      view.set_syntax_file("Packages/Avrae/Draconic.sublime-syntax")
+      view.set_syntax_file("Packages/Avrae Utilities/Draconic.sublime-syntax")
       data = get.json()['data']
       id_dict = {"name": data['name'], 
                  "collection": text, 
@@ -148,7 +148,7 @@ class workshopContentGet(sublime_plugin.WindowCommand):
     if content_id:
       view = self.window.active_view()
       get, getStatus = avraeREST("GET", "workshop/{}/".format(self.contentType) + content_id, ttl_hash=get_ttl_hash(5))
-      view.set_syntax_file("Packages/Avrae/Draconic.sublime-syntax")
+      view.set_syntax_file("Packages/Avrae Utilities/Draconic.sublime-syntax")
       data = get.json()['data']
       self.name = data['name']
       if self.id:
@@ -167,7 +167,7 @@ class workshopContentGet(sublime_plugin.WindowCommand):
             self.name = parentData['name'] + ' ' + self.name
             subalias = bool(parentData['parent_id'])
         view.set_name(self.name + '.{}'.format(self.contentType))
-        view.set_syntax_file("Packages/Avrae/Draconic.sublime-syntax")
+        view.set_syntax_file("Packages/Avrae Utilities/Draconic.sublime-syntax")
         view.run_command('append', {'characters' : data['code'].replace('\r','')})
 
 
