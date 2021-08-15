@@ -158,7 +158,7 @@ class workshopContentGet(sublime_plugin.WindowCommand):
       else:
         view = self.window.new_file()
         subalias = False
-        if data['parent_id']: # is it a subalias? if so, collect the names of the parent alias and prepend to file name
+        if data.get('parent_id'): # is it a subalias? if so, collect the names of the parent alias and prepend to file name
           subalias = True
           parent_id = data['parent_id']
           while subalias:
