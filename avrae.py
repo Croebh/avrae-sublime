@@ -27,30 +27,33 @@ class gvarUpdateCommand(sublime_plugin.TextCommand):
     gvar       = None
     payload    = self.view.substr(sublime.Region(0, self.view.size()))
 
-    if name and name.endswith('.gvar'):
-      if name.endswith('.gvar'):
-        gvar = name[:36]
-    elif file_name:
-        gvar = os.path.basename(file_name)
-        if gvar and gvar.endswith('.gvar'):
-            gvar = gvar[:36]
-
-    if gvar and len(gvar)==36:
-      get, getStatus = avraeREST("GET", "customizations/gvars/" + gvar, ttl_hash=get_ttl_hash(5))
-      newPayload = get.json()
-      newPayload.update({"value":payload})
-
-      post, postStatus = avraeREST("POST", "customizations/gvars/" + gvar, json.dumps(newPayload), ttl_hash=get_ttl_hash(5))
-      if postStatus in (200, 201):
-        self.window.active_view().show_popup(
-          '''<b>Successfully Updated Gvar:</b>
-          <ul>
-            <li>
-              <b>ID:</b> {}
-            </li>
-          </ul>'''.format(gvar), max_width=400)
+    if len(payload) > 100000:
+      self.view.show_popup(
+        '''<b>Error: Gvars must be less than 100k characters.'''.format(gvar), max_width=400)
     else:
-      self.view.show_popup("<b>Something went wrong</b><br>Invalid Gvar ID - " + str(gvar), max_width=500)
+      if name and name.endswith('.gvar'):
+        if name.endswith('.gvar'):
+          gvar = name[:36]
+      elif file_name:
+          gvar = os.path.basename(file_name)
+          if gvar and gvar.endswith('.gvar'):
+              gvar = gvar[:36]
+
+      if gvar and len(gvar)==36:
+        get, getStatus = avraeREST("GET", "customizations/gvars/" + gvar, ttl_hash=get_ttl_hash(5))
+        newPayload = get.json()
+        newPayload.update({"value":payload})
+        post, postStatus = avraeREST("POST", "customizations/gvars/" + gvar, json.dumps(newPayload), ttl_hash=get_ttl_hash(5))
+        if postStatus in (200, 201):
+          self.window.active_view().show_popup(
+            '''<b>Successfully Updated Gvar:</b>
+            <ul>
+              <li>
+                <b>ID:</b> {}
+              </li>
+            </ul>'''.format(gvar), max_width=400)
+      else:
+        self.view.show_popup("<b>Something went wrong</b><br>Invalid Gvar ID - " + str(gvar), max_width=500)
 
 
 class gvarGetCommand(sublime_plugin.WindowCommand):

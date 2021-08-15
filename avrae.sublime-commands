@@ -52,7 +52,7 @@
     "command": "edit_settings",
     "args":
     {
-        "base_file": "${packages}/Avrae/Avrae.sublime-settings",
+        "base_file": "${packages}/Avrae Utilities/Avrae.sublime-settings",
         "default": "// Avrae Settings - User\n{\n\t$0\n}\n"
     }
   }
