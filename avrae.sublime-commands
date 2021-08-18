@@ -16,7 +16,15 @@
     "command": "collection_get"
   },
   {
-    "caption": "Avrae Utilities: Get Workshop Alias",
+    "caption": "Avrae Utilities: Get Collection Description",
+    "command": "workshop_information_get"
+  },
+  {
+    "caption": "Avrae Utilities: Update Collection Description",
+    "command": "workshop_information_update"
+  },
+  {
+    "caption": "Avrae Utilities: Get Alias",
     "command": "workshop_content_get",
     "args": 
     {
@@ -24,7 +32,16 @@
     }
   },
   {
-    "caption": "Avrae Utilities: Update Workshop Alias",
+    "caption": "Avrae Utilities: Get Alias Information",
+    "command": "workshop_content_get",
+    "args": 
+    {
+      "contentType": "alias",
+      "key": "docs"
+    }
+  },
+  {
+    "caption": "Avrae Utilities: Update Alias",
     "command": "workshop_content_update",
     "args": 
     {
@@ -32,7 +49,16 @@
     }
   },
   {
-    "caption": "Avrae Utilities: Get Workshop Snippet",
+    "caption": "Avrae Utilities: Update Alias Information",
+    "command": "workshop_content_update",
+    "args": 
+    {
+      "contentType": "alias",
+      "key": "docs"
+    }
+  },
+  {
+    "caption": "Avrae Utilities: Get Snippet",
     "command": "workshop_content_get",
     "args": 
     {
@@ -40,7 +66,7 @@
     }
   },
   {
-    "caption": "Avrae Utilities: Update Workshop Snippet",
+    "caption": "Avrae Utilities: Update Snippet",
     "command": "workshop_content_update",
     "args": 
     {

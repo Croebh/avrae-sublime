@@ -141,18 +141,80 @@ class collectionGet(sublime_plugin.WindowCommand):
         view.set_name('collection.id')
       view.run_command('append', {'characters' : json.dumps(id_dict, indent=2)})
 
-class workshopContentGet(sublime_plugin.WindowCommand):
 
-  def run(self, contentType):
+class workshopInformationGet(sublime_plugin.WindowCommand):
+
+  def run(self):
     self.id = None
-    self.contentType = contentType
-    self.contentPlural = 'aliases' if self.contentType == 'alias' else 'snippets'
     self.file_name = self.window.active_view().file_name() or ""
     collection_file = os.path.split(self.file_name)[0] + "\\collection.id"
     if self.file_name and os.path.exists(collection_file):
       with open(collection_file) as f:
         collection = json.load(f)
-        if os.path.splitext(os.path.split(self.file_name)[1])[0] in collection[self.contentPlural]:
+        self.id = collection['collection']  
+        return self.on_done(self.id)
+    self.window.show_input_panel("Collection ID:", "", self.on_done, None, None)
+
+  def on_done(self, content_id):
+    if content_id:
+      view = self.window.active_view()
+      get, getStatus = avraeREST("GET", "workshop/collection/{}/full".format(content_id), ttl_hash=get_ttl_hash(5))
+      data = get.json()['data']
+      self.name = data['name']
+      if os.path.split(self.file_name)[1].lower() == 'readme.md':
+        view.run_command('select_all')
+        view.run_command('right_delete')
+      else:
+        view = self.window.new_file()
+        view.set_name("readme.md")
+      view.run_command('append', {'characters' : data['description'].replace('\r','')})
+
+
+class workshopInformationUpdate(sublime_plugin.WindowCommand):
+
+  def run(self):
+    self.id = None
+    self.payload = self.window.active_view().substr(sublime.Region(0, self.window.active_view().size()))
+    self.file_name = self.window.active_view().file_name() or ""
+    collection_file = os.path.split(self.file_name)[0] + "\\collection.id"
+    if self.file_name and os.path.exists(collection_file):
+      with open(collection_file) as f:
+        collection = json.load(f)
+        self.id = collection['collection']
+        self.name = collection['name']
+        return self.on_done(self.id)
+
+  def on_done(self, content_id):
+    if content_id:
+      view = self.window.active_view()
+      get, getStatus = avraeREST("GET", "workshop/collection/{}/full".format(content_id), ttl_hash=get_ttl_hash(5))
+      if getStatus in (200, 201):
+        patch, patchStatus = avraeREST("patch", endpoint = "workshop/collection/{}".format(content_id), payload = json.dumps({"name": self.name, "description": self.payload, "image": get.json()['data']['image']}), ttl_hash=get_ttl_hash(5)) 
+        if patchStatus in (200, 201):
+          self.window.active_view().show_popup(
+            '''<b>Successfully Updated Workshop Content:</b>
+            <ul>
+              <li>
+                <b>Collection:</b> {}
+              </li>
+              <li>
+                <b>ID:</b> {}
+              </li>
+            </ul>'''.format(self.name, self.id), max_width=400)
+
+class workshopContentGet(sublime_plugin.WindowCommand):
+
+  def run(self, contentType:str = "alias", key:str = "code"):
+    self.id = None
+    self.contentType = contentType
+    self.contentPlural = 'aliases' if 'alias' in self.contentType else 'snippets'
+    self.key = key
+    self.file_name = self.window.active_view().file_name() or ""
+    collection_file = os.path.split(self.file_name)[0] + "\\collection.id"
+    if self.file_name and os.path.exists(collection_file):
+      with open(collection_file) as f:
+        collection = json.load(f)
+        if os.path.splitext(os.path.split(self.file_name)[1])[0] in (collection[self.contentPlural], 'md'):
           self.id = collection[self.contentPlural][os.path.splitext(os.path.split(self.file_name)[1])[0]]
           return self.on_done(self.id)
     self.window.show_input_panel("{} ID:".format(self.contentType.title()), "", self.on_done, None, None)
@@ -167,7 +229,7 @@ class workshopContentGet(sublime_plugin.WindowCommand):
       if self.id:
         view.run_command('select_all')
         view.run_command('right_delete')
-        view.run_command('append', {'characters' : data['code'].replace('\r','')})
+        view.run_command('append', {'characters' : data[self.key].replace('\r','')})
       else:
         view = self.window.new_file()
         subalias = False
@@ -179,25 +241,28 @@ class workshopContentGet(sublime_plugin.WindowCommand):
             parentData = get.json()['data']
             self.name = parentData['name'] + ' ' + self.name
             subalias = bool(parentData['parent_id'])
-        view.set_name(self.name + '.{}'.format(self.contentType))
+        view.set_name(self.name + '.{}'.format(self.contentType if self.key == 'code' else 'md'))
         view.set_syntax_file("Packages/Avrae Utilities/Draconic.sublime-syntax")
-        view.run_command('append', {'characters' : data['code'].replace('\r','')})
+        view.run_command('append', {'characters' : data[self.key].replace('\r','')})
 
 
 class workshopContentUpdate(sublime_plugin.WindowCommand):
 
-  def run(self, contentType):
+  def run(self, contentType:str = "alias", key:str = "code"):
     self.contentType = contentType
     self.contentPlural = 'aliases' if self.contentType == 'alias' else 'snippets'
     self.view = self.window.active_view()
     self.payload = self.view.substr(sublime.Region(0, self.view.size()))
     self.id = None
     self.name = None
+    self.key = key
     self.collection_name = None
     self.file_name = self.window.active_view().file_name()
+
     if self.file_name and os.path.exists(os.path.split(self.file_name)[0] + "\\collection.id"):
       with open(os.path.split(self.file_name)[0] + "\\collection.id") as f:
         collection = json.load(f)
+        print(os.path.splitext(os.path.split(self.file_name)[1])[0])
         if os.path.splitext(os.path.split(self.file_name)[1])[0] in collection[self.contentPlural]:
           self.name = os.path.splitext(os.path.split(self.file_name)[1])[0]
           self.id = collection[self.contentPlural][self.name]
@@ -207,9 +272,12 @@ class workshopContentUpdate(sublime_plugin.WindowCommand):
   def on_done(self, content_id):
     if content_id:
       view = self.window.active_view()
-      get, getStatus = avraeREST("post", endpoint = "workshop/{}/".format(self.contentType) + content_id + '/code', payload = json.dumps({"content": self.payload}), ttl_hash=get_ttl_hash(5))
-      self.version = get.json()['data']['version']
-      get, getStatus = avraeREST("put", endpoint = "workshop/{}/".format(self.contentType) + content_id + '/active-code', payload = json.dumps({"version": self.version}), ttl_hash=get_ttl_hash(5)) 
+      if self.key == 'code':
+        get, getStatus = avraeREST("post", endpoint = "workshop/{}/".format(self.contentType) + content_id + '/code', payload = json.dumps({"content": self.payload}), ttl_hash=get_ttl_hash(5))
+        self.version = get.json()['data']['version']
+        get, getStatus = avraeREST("put", endpoint = "workshop/{}/".format(self.contentType) + content_id + '/active-code', payload = json.dumps({"version": self.version}), ttl_hash=get_ttl_hash(5)) 
+      elif self.key == 'docs':
+        get, getStatus = avraeREST("patch", endpoint = "workshop/{}/".format(self.contentType) + content_id, payload = json.dumps({"name": self.name, "docs": self.payload}), ttl_hash=get_ttl_hash(5)) 
       if getStatus in (200, 201):
         self.window.active_view().show_popup(
           '''<b>Successfully Updated Workshop Content:</b>
