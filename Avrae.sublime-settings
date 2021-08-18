@@ -1,3 +1,11 @@
 {
+  // This is where you paste your avrae-token from the 
+  // avrae.io website. You can find information on how 
+  // to get this token in the readme on 
+  // https://github.com/Croebh/avrae-sublime
+  // 
+  // Please keep this token private, anyone who gains
+  // access to this token could potentially gain access
+  // to your Discord account.
   "token": ""
 }

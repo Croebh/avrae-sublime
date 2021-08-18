@@ -15,6 +15,9 @@ In order for this plugin to have your permissions to grab and update your GVARs,
 6. In Sublime Text, open the Command Pallete
 7. Use the ``Preferences: Avrae Utilities Settings`` command, pasting in the copied token in the 'token' key
 
+### Note
+Please keep this token private, as anyone who gains access to this token could potentially gain access to your Discord account.
+
 ## Features
 This plugin contains the following features:
 
@@ -28,4 +31,4 @@ Using the ``Avrae Utilities: Get GVAR`` and ``Avrae Utilities: Update GVAR`` com
 You can use ``Avrae Utilities: Get Collection Data`` to collect a json of all of the aliases and snippets ids within a collection. Save that as `collection.id` in the folder you wish to save your collection in. You can then retrieve each alias/snippet with ``Avrae Utilities: Get Workshop Alias``, which you can save as ``aliasName.alias``. If you wish to update them, you can run ``Avrae Utilities: Update Workshop Alias``. Support for editing the documentation will come in a future update.
 
 ### Copy Attack
-If you have automation written out, you can select it all and run the ``Avrae Utilities: Copy Attack`` command, and it will minify it, prepend ``!a import Test``, and copy it to your clipboard for easy testing within Discord.
+If you have automation JSON written out, you can select it all and run the ``Avrae Utilities: Copy Attack`` command, and it will minify it, prepends ``!a import Test``, and copy it to your clipboard for easy testing within Discord.
