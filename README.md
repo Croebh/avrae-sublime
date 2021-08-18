@@ -28,7 +28,10 @@ Handy syntax highlighting for the Draconic language (Subset of Python) that Avra
 Using the ``Avrae Utilities: Get GVAR`` and ``Avrae Utilities: Update GVAR`` commands in the Command Pallete, you can retrieve and update GVARs without the need to visit the dashboard.
 
 ### Workshop Collections
-You can use ``Avrae Utilities: Get Collection Data`` to collect a json of all of the aliases and snippets ids within a collection. Save that as `collection.id` in the folder you wish to save your collection in. You can then retrieve each alias/snippet with ``Avrae Utilities: Get Workshop Alias``, which you can save as ``aliasName.alias``. If you wish to update them, you can run ``Avrae Utilities: Update Workshop Alias``. Support for editing the documentation will come in a future update.
+You can use ``Avrae Utilities: Get Collection Data`` to collect a json of all of the aliases and snippets ids within a collection. This will ask you for a collection id. You can find this by going to the collection on the Workshop, and looking at the url. Everything after ``avrae.io/dashboard/workshop/`` is your id.
+![An image of the url to the Map Utilities collection, with the collection id circled](https://media.discordapp.net/attachments/666401385335750666/877414197842030612/unknown.png)
+
+Save that as `collection.id` in the folder you wish to save your collection in. You can then retrieve each alias/snippet with ``Avrae Utilities: Get Workshop Alias``, which you can save as ``aliasName.alias``. If you wish to update them, you can run ``Avrae Utilities: Update Workshop Alias``. Support for editing the documentation will come in a future update.
 
 ### Copy Attack
 If you have automation JSON written out, you can select it all and run the ``Avrae Utilities: Copy Attack`` command, and it will minify it, prepends ``!a import Test``, and copy it to your clipboard for easy testing within Discord.
