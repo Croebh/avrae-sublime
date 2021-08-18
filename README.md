@@ -37,17 +37,23 @@ You can use ``Avrae Utilities: Get Collection Data`` to collect a json of all of
 
 > Now that you have the `collection.id`, if you run the ``Avrae Utilities: Get Collection Data`` command with it open, it will update the file.
 
+#### Getting your collection descriptions
+You can grab the markdown description of a collection with the ``Avrae Utilities: Get Collection Description`` command. If you have a `readme.md` file active and open, saved in a folder with a `collection.id`, it will grab the collection information from their. Otherwise, it will ask you for your collection ID.
+
+#### Updating your collection descriptions
+If you wish to update the description, you can run ``Avrae Utilities: Update Collection Description``, which will push the currently open `readme.md` to the workshop, using the `collection.id` that is saved to the same folder.
+
 #### Getting your aliases/snippets
 
-Inside that `collection.id`, it will have a JSON containing the names and ids of each alias/subalias/snippet inside the collection. You can use the ID's within with the ``Avrae Utilities: Get Workshop Alias`` and ``Avrae Utilities: Get Workshop Snippet`` commands.
+Inside the `collection.id`, will be a JSON containing the names and ids of each alias/subalias/snippet inside the collection. You can use the ID's within with the ``Avrae Utilities: Get Workshop Alias`` and ``Avrae Utilities: Get Workshop Snippet`` commands.
 
-You can then retrieve each alias/snippet with ``Avrae Utilities: Get Workshop Alias``, which you can save as ``aliasName.alias``, replacing ``aliasName`` with the name of the actual alias.
+You can then retrieve each alias/snippet with ``Avrae Utilities: Get Alias``, which you can save as ``aliasName.alias``, replacing ``aliasName`` with the name of the actual alias.
 
-> Once you save your alias/snippet in the folder with the `collection.id`, running the ``Avrae Utilities: Get Workshop Alias`` command with the alias open will grab the ID automatically from the `collection.id`. Neat!
+> Once you save your alias/snippet in the folder with the `collection.id`, running the ``Avrae Utilities: Get Alias`` command with the alias open will grab the ID automatically from the `collection.id`. Neat!
 
 #### Updating your aliases/snippets
 
-If you wish to update them, you can run ``Avrae Utilities: Update Workshop Alias``, which will push the currently open alias to the workshop, using the `collection.id` that is saved to the same folder. It will then also update the currently active code version to the new one added by this command. After that, you're good to test it in Discord.
+If you wish to update them, you can run ``Avrae Utilities: Update Alias``, which will push the currently open alias to the workshop, using the `collection.id` that is saved to the same folder. It will then also update the currently active code version to the new one added by this command. After that, you're good to test it in Discord.
 
 #### Folder Structure
 
@@ -60,19 +66,19 @@ root
  ├ Collection Name
  | | # This contains the json collected by the `Get Collection Data` command
  | ├ collection.id 
- | | # This contains the markdown for the collection description (NYI in the package)
+ | | # This contains the markdown for the collection description
  | ├ readme.md 
  | | # This contains the alias itself, collected by the `Get Workshop Alias` command, and updated with the `Update Workshop Alias` command
  | ├ aliasName.alias 
- | | # This contains the markdown the alias description (NYI in the package)
+ | | # This contains the markdown the alias description
  | ├ aliasName.md 
  | | # This contains the subalias alias itself, collected by the `Get Workshop Alias` command, and updated with the `Update Workshop Alias` command
  | ├ aliasName subAalias.alias 
- | | # This contains the markdown the alias description (NYI in the package)
+ | | # This contains the markdown the alias description
  | ├ aliasName subAalias.md 
  | | # This contains the snippet itself, collected by the `Get Workshop Snippet` command, and updated with the `Update Workshop Snippet` command
  | ├ snippetName.snippet 
- | | # This contains the markdown the snippet description (NYI in the package)
+ | | # This contains the markdown the snippet description
  | └ snippetName.md 
 ```
 
