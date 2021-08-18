@@ -1,0 +1,10 @@
+Adds the following commands:
+
+- ``Avrae Utilities: Get Collection Description``
+- ``Avrae Utilities: Update Collection Description``
+- ``Avrae Utilities: Get Alias Description``
+- ``Avrae Utilities: Update Alias Description``
+- ``Avrae Utilities: Get Snippet Description``
+- ``Avrae Utilities: Update Snippet Description``
+
+Please read https://github.com/Croebh/avrae-sublime/blob/main/README.md for more information.
