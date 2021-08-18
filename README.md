@@ -32,3 +32,4 @@ You can use ``Avrae Utilities: Get Collection Data`` to collect a json of all of
 
 ### Copy Attack
 If you have automation JSON written out, you can select it all and run the ``Avrae Utilities: Copy Attack`` command, and it will minify it, prepends ``!a import Test``, and copy it to your clipboard for easy testing within Discord.
+![Converting an attack into a Discord Command](https://media.discordapp.net/attachments/666401385335750666/877409550733566002/2021-08-17_22-32-12.gif)
