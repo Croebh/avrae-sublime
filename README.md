@@ -44,19 +44,19 @@ You can grab the markdown description of a collection with the ``Avrae Utilities
 If you wish to update the description, you can run ``Avrae Utilities: Update Collection Description``, which will push the currently open `readme.md` to the workshop, using the `collection.id` that is saved to the same folder.
 
 #### Getting your aliases/snippets
-
 Inside the `collection.id`, will be a JSON containing the names and ids of each alias/subalias/snippet inside the collection. You can use the ID's within with the ``Avrae Utilities: Get Workshop Alias`` and ``Avrae Utilities: Get Workshop Snippet`` commands.
 
-You can then retrieve each alias/snippet with ``Avrae Utilities: Get Alias``, which you can save as ``aliasName.alias``, replacing ``aliasName`` with the name of the actual alias.
+You can then retrieve each alias/snippet with ``Avrae Utilities: Get Alias``, which you can save as ``aliasName.alias``, replacing ``aliasName`` with the name of the actual alias or snippet.
 
 > Once you save your alias/snippet in the folder with the `collection.id`, running the ``Avrae Utilities: Get Alias`` command with the alias open will grab the ID automatically from the `collection.id`. Neat!
 
 #### Updating your aliases/snippets
-
 If you wish to update them, you can run ``Avrae Utilities: Update Alias``, which will push the currently open alias to the workshop, using the `collection.id` that is saved to the same folder. It will then also update the currently active code version to the new one added by this command. After that, you're good to test it in Discord.
 
-#### Folder Structure
+#### Updating and getting alias/snippet descriptions
+You can also grab and update the descriptions for your alias and snippets, using the ``Avrae Utilities: Get Alias Description`` and ``Avrae Utilities: Update Alias Description`` (and their snippet equivalents). You can save as ``aliasName.md``, replacing ``aliasName`` with the name of the actual alias or snippet.
 
+#### Folder Structure
 Support for editing the documentation will come in a future update.
 
 Here is an example collection folder structure:
