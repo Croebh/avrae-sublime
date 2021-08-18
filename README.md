@@ -22,7 +22,7 @@ Please keep this token private, as anyone who gains access to this token could p
 This plugin contains the following features:
 
 ### Draconic Syntax
-Handy syntax highlighting for the Draconic language (Subset of Python) that Avrae uses for aliasing.
+Handy syntax highlighting for the Draconic language (Subset of Python) that Avrae uses for aliasing. Its set up to work automatically on `*.alias`, `*.snippet`, and `*.gvar` filetypes.
 
 ### Get and Update GVARs
 Using the ``Avrae Utilities: Get GVAR`` and ``Avrae Utilities: Update GVAR`` commands in the Command Pallete, you can retrieve and update GVARs without the need to visit the dashboard.
@@ -31,15 +31,15 @@ Using the ``Avrae Utilities: Get GVAR`` and ``Avrae Utilities: Update GVAR`` com
 There various things you can do to grab and update workshop collections, within SublimeText.
 
 #### Getting your collection info
-You can use ``Avrae Utilities: Get Collection Data`` to collect a json of all of the aliases and snippets ids within a collection. This will ask you for a collection id. You can find this by going to the collection on the Workshop, and looking at the url. Everything after ``avrae.io/dashboard/workshop/`` is your id. Save that as `collection.id` in the folder you wish to save your collection in. 
+You can use ``Avrae Utilities: Get Collection Data`` to collect a json of all of the aliases and snippets ids within a collection. This will ask you for a collection ID. You can find this by going to the collection on the Workshop, and looking at the url. Everything after ``avrae.io/dashboard/workshop/`` is your ID. Save that as `collection.id` in the folder you wish to save your collection in. 
 
-![An image of the url to the Map Utilities collection, with the collection id circled](https://media.discordapp.net/attachments/666401385335750666/877414197842030612/unknown.png)
+![An image of the url to the Map Utilities collection, with the collection ID circled](https://media.discordapp.net/attachments/666401385335750666/877414197842030612/unknown.png)
 
 > Now that you have the `collection.id`, if you run the ``Avrae Utilities: Get Collection Data`` command with it open, it will update the file.
 
 #### Getting your aliases/snippets
 
-Inside that `collection.id`, it will have a JSON containing the names and ids of each alias/subalias/snippet inside the collection. You can use the id's within with the ``Avrae Utilities: Get Workshop Alias`` and ``Avrae Utilities: Get Workshop Snippet`` commands.
+Inside that `collection.id`, it will have a JSON containing the names and ids of each alias/subalias/snippet inside the collection. You can use the ID's within with the ``Avrae Utilities: Get Workshop Alias`` and ``Avrae Utilities: Get Workshop Snippet`` commands.
 
 You can then retrieve each alias/snippet with ``Avrae Utilities: Get Workshop Alias``, which you can save as ``aliasName.alias``, replacing ``aliasName`` with the name of the actual alias.
 
@@ -47,7 +47,7 @@ You can then retrieve each alias/snippet with ``Avrae Utilities: Get Workshop Al
 
 #### Updating your aliases/snippets
 
-If you wish to update them, you can run ``Avrae Utilities: Update Workshop Alias``.
+If you wish to update them, you can run ``Avrae Utilities: Update Workshop Alias``, which will push the currently open alias to the workshop, using the `collection.id` that is saved to the same folder. It will then also update the currently active code version to the new one added by this command. After that, you're good to test it in Discord.
 
 #### Folder Structure
 

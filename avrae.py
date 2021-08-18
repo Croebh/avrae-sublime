@@ -1,4 +1,3 @@
-
 import sublime, sublime_plugin
 import json
 import os
@@ -6,6 +5,7 @@ import requests
 import time
 from functools import lru_cache
 
+# Basic information for any payloads we send to the REST API
 headers = {
             'Authorization': "",
             'Accept': 'application/json, text/plain, */*',
@@ -19,31 +19,39 @@ headers = {
 
 class gvarUpdateCommand(sublime_plugin.TextCommand):
 
-  def run(self, edit):
+  def run(self):
+    """
+    Looks for a gvar ID in the filename, then updates that gvar using the contents of the active file.
+    """
     file_name  = self.view.file_name()
     name       = self.view.name()
     getStatus  = 0
     postStatus = 0
-    gvar       = None
+    gvarID     = None
     payload    = self.view.substr(sublime.Region(0, self.view.size()))
 
+    # Gvars have a limit of 100,000 characters.
     if len(payload) > 100000:
       self.view.show_popup(
         '''<b>Error: Gvars must be less than 100k characters.'''.format(gvar), max_width=400)
     else:
+      # Grab the gvar ID
       if name and name.endswith('.gvar'):
         if name.endswith('.gvar'):
-          gvar = name[:36]
+          gvarID = name[:36]
       elif file_name:
-          gvar = os.path.basename(file_name)
-          if gvar and gvar.endswith('.gvar'):
-              gvar = gvar[:36]
-
-      if gvar and len(gvar)==36:
-        get, getStatus = avraeREST("GET", "customizations/gvars/" + gvar, ttl_hash=get_ttl_hash(5))
+          gvarID = os.path.basename(file_name)
+          if gvarID and gvarID.endswith('.gvar'):
+              gvarID = gvarID[:36]
+      # Got an ID and it seems good to go? Awesome
+      if gvarID and len(gvarID)==36:
+        # First we need to get the full information on the gvar, 
+        get, getStatus = avraeREST("GET", "customizations/gvars/" + gvarID, ttl_hash=get_ttl_hash(5))
+        # then update it with your new info and push it back
         newPayload = get.json()
         newPayload.update({"value":payload})
-        post, postStatus = avraeREST("POST", "customizations/gvars/" + gvar, json.dumps(newPayload), ttl_hash=get_ttl_hash(5))
+        post, postStatus = avraeREST("POST", "customizations/gvars/" + gvarID, json.dumps(newPayload), ttl_hash=get_ttl_hash(5))
+        # Huzzah, let the user know!
         if postStatus in (200, 201):
           self.window.active_view().show_popup(
             '''<b>Successfully Updated Gvar:</b>
@@ -51,14 +59,19 @@ class gvarUpdateCommand(sublime_plugin.TextCommand):
               <li>
                 <b>ID:</b> {}
               </li>
-            </ul>'''.format(gvar), max_width=400)
+            </ul>'''.format(gvarID), max_width=400)
       else:
-        self.view.show_popup("<b>Something went wrong</b><br>Invalid Gvar ID - " + str(gvar), max_width=500)
+        self.view.show_popup("<b>Something went wrong</b><br>Invalid Gvar ID - " + str(gvarID), max_width=500)
 
 
 class gvarGetCommand(sublime_plugin.WindowCommand):
 
   def run(self):
+    """
+    Looks for a gvar ID in the filename, if it can't find one, prompts the user for an ID.
+
+    If it found the ID in the filename, it will replace the contents of the open file. Otherwise, it will open a new sheet with the gvar contents, named after the gvar ID.
+    """
     name = self.window.active_view().name()
     self.file_name = self.window.active_view().file_name()
     self.view = self.window.active_view()
