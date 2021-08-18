@@ -31,7 +31,9 @@ Using the ``Avrae Utilities: Get GVAR`` and ``Avrae Utilities: Update GVAR`` com
 There various things you can do to grab and update workshop collections, within SublimeText.
 
 #### Getting your collection info
-You can use ``Avrae Utilities: Get Collection Data`` to collect a json of all of the aliases and snippets ids within a collection. This will ask you for a collection ID. You can find this by going to the collection on the Workshop, and looking at the url. Everything after ``avrae.io/dashboard/workshop/`` is your ID. Save that as `collection.id` in the folder you wish to save your collection in. 
+You can use ``Avrae Utilities: Get Collection Data`` to collect a json of all of the aliases and snippets ids within a collection. This will ask you for a collection ID. You can find this by going to the collection on the Workshop, and looking at the url. Everything after ``avrae.io/dashboard/workshop/`` is your ID.
+
+Once you've ran the ``Avrae Utilities: Get Collection Data`` command and given it your ID, save the result as `collection.id` in the folder you wish to save your collection in. 
 
 ![An image of the url to the Map Utilities collection, with the collection ID circled](https://media.discordapp.net/attachments/666401385335750666/877414197842030612/unknown.png)
 
