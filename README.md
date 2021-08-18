@@ -28,20 +28,30 @@ Handy syntax highlighting for the Draconic language (Subset of Python) that Avra
 Using the ``Avrae Utilities: Get GVAR`` and ``Avrae Utilities: Update GVAR`` commands in the Command Pallete, you can retrieve and update GVARs without the need to visit the dashboard.
 
 ### Workshop Collections
+There various things you can do to grab and update workshop collections, within SublimeText.
+
+#### Getting your collection info
 You can use ``Avrae Utilities: Get Collection Data`` to collect a json of all of the aliases and snippets ids within a collection. This will ask you for a collection id. You can find this by going to the collection on the Workshop, and looking at the url. Everything after ``avrae.io/dashboard/workshop/`` is your id. Save that as `collection.id` in the folder you wish to save your collection in. 
+
+![An image of the url to the Map Utilities collection, with the collection id circled](https://media.discordapp.net/attachments/666401385335750666/877414197842030612/unknown.png)
 
 > Now that you have the `collection.id`, if you run the ``Avrae Utilities: Get Collection Data`` command with it open, it will update the file.
 
-![An image of the url to the Map Utilities collection, with the collection id circled](https://media.discordapp.net/attachments/666401385335750666/877414197842030612/unknown.png)
+#### Getting your aliases/snippets
 
 Inside that `collection.id`, it will have a JSON containing the names and ids of each alias/subalias/snippet inside the collection. You can use the id's within with the ``Avrae Utilities: Get Workshop Alias`` and ``Avrae Utilities: Get Workshop Snippet`` commands.
 
 You can then retrieve each alias/snippet with ``Avrae Utilities: Get Workshop Alias``, which you can save as ``aliasName.alias``, replacing ``aliasName`` with the name of the actual alias.
 
-
 > Once you save your alias/snippet in the folder with the `collection.id`, running the ``Avrae Utilities: Get Workshop Alias`` command with the alias open will grab the ID automatically from the `collection.id`. Neat!
 
-If you wish to update them, you can run ``Avrae Utilities: Update Workshop Alias``. Support for editing the documentation will come in a future update.
+#### Updating your aliases/snippets
+
+If you wish to update them, you can run ``Avrae Utilities: Update Workshop Alias``.
+
+#### Folder Structure
+
+Support for editing the documentation will come in a future update.
 
 Here is an example collection folder structure:
 ```bash
