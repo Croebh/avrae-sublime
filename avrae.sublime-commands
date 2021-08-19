@@ -32,7 +32,7 @@
     }
   },
   {
-    "caption": "Avrae Utilities: Get Alias Information",
+    "caption": "Avrae Utilities: Get Alias Description",
     "command": "workshop_content_get",
     "args": 
     {
@@ -49,7 +49,7 @@
     }
   },
   {
-    "caption": "Avrae Utilities: Update Alias Information",
+    "caption": "Avrae Utilities: Update Alias Description",
     "command": "workshop_content_update",
     "args": 
     {
@@ -66,11 +66,29 @@
     }
   },
   {
+    "caption": "Avrae Utilities: Get Snippet Description",
+    "command": "workshop_content_get",
+    "args": 
+    {
+      "contentType": "snippet",
+      "key": "docs"
+    }
+  },
+  {
     "caption": "Avrae Utilities: Update Snippet",
     "command": "workshop_content_update",
     "args": 
     {
       "contentType": "snippet"
+    }
+  },
+  {
+    "caption": "Avrae Utilities: Update Snippet Description",
+    "command": "workshop_content_update",
+    "args": 
+    {
+      "contentType": "snippet",
+      "key": "docs"
     }
   },
   {

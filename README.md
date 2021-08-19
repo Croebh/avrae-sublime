@@ -25,7 +25,7 @@ This plugin contains the following features:
 Handy syntax highlighting for the Draconic language (Subset of Python) that Avrae uses for aliasing. Its set up to work automatically on `*.alias`, `*.snippet`, and `*.gvar` filetypes.
 
 ### Get and Update GVARs
-Using the ``Avrae Utilities: Get GVAR`` and ``Avrae Utilities: Update GVAR`` commands in the Command Pallete, you can retrieve and update GVARs without the need to visit the dashboard.
+Using the ``Avrae Utilities: Get GVAR`` and ``Avrae Utilities: Update GVAR`` commands in the Command Pallete, you can retrieve and update GVARs without the need to visit the dashboard. If you want to save them locally, you can use the file extension ``.gvar``, and include the ID for the GVAR anywhere in the rest of the file name. You can have labels/descriptions before or after the ID, allowing you to organize your GVARs.
 
 ### Workshop Collections
 There various things you can do to grab and update workshop collections, within SublimeText.

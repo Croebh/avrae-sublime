@@ -7,9 +7,117 @@
                 "id": "avrae",
                 "children": [
                     {
-                        "id": "gvar_update",
-                        "caption": "Update Gvar",
-                        "command": "gvar_update"
+                        "caption": "GVARs",
+                        "id": "avrae-gvar",
+                        "children": [
+                            {
+                                "id": "gvar_get",
+                                "caption": "Get Gvar",
+                                "command": "gvar_get"
+                            },
+                            {
+                                "id": "gvar_update",
+                                "caption": "Update Gvar",
+                                "command": "gvar_update"
+                            }
+                        ]
+                    },
+                    {
+                        "caption": "Collections",
+                        "id": "avrae-collections",
+                        "children": [
+                            {
+                                "id": "collection_get",
+                                "caption": "Get Collection Data",
+                                "command": "collection_get"
+                            },
+                            {
+                                "id": "workshop_information_get",
+                                "caption": "Get Collection Description",
+                                "command": "workshop_information_get"
+                            },
+                            {
+                                "id": "workshop_information_update",
+                                "caption": "Update Collection Description",
+                                "command": "workshop_information_update"
+                            },
+                            {
+                                "caption": "Aliases",
+                                "id": "avrae-aliases",
+                                "children": [
+                                    {
+                                        "caption": "Get Alias",
+                                        "command": "workshop_content_get",
+                                        "args": {
+                                            "contentType": "alias"
+                                        }
+                                    },
+                                    {
+                                        "caption": "Get Alias Description",
+                                        "command": "workshop_content_get",
+                                        "args": {
+                                            "contentType": "alias",
+                                            "key": "docs"
+                                        }
+                                    },
+                                    {
+                                        "caption": "Update Alias",
+                                        "command": "workshop_content_update",
+                                        "args": {
+                                            "contentType": "alias"
+                                        }
+                                    },
+                                    {
+                                        "caption": "Update Alias Description",
+                                        "command": "workshop_content_update",
+                                        "args": {
+                                            "contentType": "alias",
+                                            "key": "docs"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "caption": "Snippets",
+                                "id": "avrae-snippetes",
+                                "children": [
+                                    {
+                                        "caption": "Get Snippet",
+                                        "command": "workshop_content_get",
+                                        "args": {
+                                            "contentType": "snippet"
+                                        }
+                                    },
+                                    {
+                                        "caption": "Get Snippet Description",
+                                        "command": "workshop_content_get",
+                                        "args": {
+                                            "contentType": "snippet",
+                                            "key": "docs"
+                                        }
+                                    },
+                                    {
+                                        "caption": "Update Snippet",
+                                        "command": "workshop_content_update",
+                                        "args": {
+                                            "contentType": "snippet"
+                                        }
+                                    },
+                                    {
+                                        "caption": "Update Snippet Description",
+                                        "command": "workshop_content_update",
+                                        "args": {
+                                            "contentType": "snippet",
+                                            "key": "docs"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "caption": "Copy Attack",
+                        "command": "make_attack"
                     }
                 ]
             }

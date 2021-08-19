@@ -223,7 +223,7 @@ class workshopContentGet(sublime_plugin.WindowCommand):
     if self.file_name and os.path.exists(collection_file):
       with open(collection_file) as f:
         collection = json.load(f)
-        if os.path.splitext(os.path.split(self.file_name)[1])[0] in (collection[self.contentPlural], 'md'):
+        if os.path.splitext(os.path.split(self.file_name)[1])[0] in collection[self.contentPlural]:
           self.id = collection[self.contentPlural][os.path.splitext(os.path.split(self.file_name)[1])[0]]
           return self.on_done(self.id)
     self.window.show_input_panel("{} ID:".format(self.contentType.title()), "", self.on_done, None, None)
