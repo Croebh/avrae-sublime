@@ -128,11 +128,9 @@ class collectionGet(sublime_plugin.WindowCommand):
                  "aliases": {},
                  "snippets": {}}
       for alias in data.get('aliases', {}):
-        id_dict['aliases'][alias.get('name')] = alias.get('_id')
-        for subalias in alias.get('subcommands'):
-          id_dict['aliases'][alias.get('name') + ' ' + subalias.get('name')] = subalias.get('_id')
-      for alias in data.get('snippets', {}):
-        id_dict['snippets'][alias.get('name')] = alias.get('_id')
+        self.findSubaliases(alias, id_dict, "")
+      for snippet in data.get('snippets', {}):
+        id_dict['snippets'][snippet.get('name')] = snippet.get('_id')
       if view.file_name() and 'collection.id' in view.file_name():
         view.run_command('select_all')
         view.run_command('right_delete')
@@ -141,6 +139,12 @@ class collectionGet(sublime_plugin.WindowCommand):
         view.set_name('collection.id')
       view.run_command('append', {'characters' : json.dumps(id_dict, indent=2)})
 
+
+  def findSubaliases(self, alias:dict, out:dict, curName:str):
+    curName = (curName + ' ' + alias['name']).strip()
+    out['aliases'][curName] = alias['_id']
+    for subalias in alias.get('subcommands', {}):
+      self.findSubaliases(subalias, out, curName)
 
 class workshopInformationGet(sublime_plugin.WindowCommand):
 
@@ -233,17 +237,19 @@ class workshopContentGet(sublime_plugin.WindowCommand):
       else:
         view = self.window.new_file()
         subalias = False
-        if data.get('parent_id'): # is it a subalias? if so, collect the names of the parent alias and prepend to file name
-          subalias = True
-          parent_id = data['parent_id']
-          while subalias:
-            get, getStatus = avraeREST("GET", "workshop/{}/".format(self.contentType) + parent_id, ttl_hash=get_ttl_hash(5))
-            parentData = get.json()['data']
-            self.name = parentData['name'] + ' ' + self.name
-            subalias = bool(parentData['parent_id'])
+        if data.get('parent_id'): 
+          self.name = self.determineAliasFullName(data, "")
         view.set_name(self.name + '.{}'.format(self.contentType if self.key == 'code' else 'md'))
         view.set_syntax_file("Packages/Avrae Utilities/Draconic.sublime-syntax")
         view.run_command('append', {'characters' : data[self.key].replace('\r','')})
+
+  def determineAliasFullName(self, alias:dict, curName:str):
+    curName = (alias.get('name') + ' ' + curName).strip()
+    print(curName)
+    if not alias.get('parent_id'):
+      return curName
+    get, getStatus = avraeREST("GET", "workshop/alias/" + alias.get('parent_id'), ttl_hash=get_ttl_hash(5))
+    return self.determineAliasFullName(get.json()['data'], curName)
 
 
 class workshopContentUpdate(sublime_plugin.WindowCommand):
@@ -254,21 +260,41 @@ class workshopContentUpdate(sublime_plugin.WindowCommand):
     self.view = self.window.active_view()
     self.payload = self.view.substr(sublime.Region(0, self.view.size()))
     self.id = None
-    self.name = None
     self.key = key
     self.collection_name = None
-    self.file_name = self.window.active_view().file_name()
+    self.file_name = self.window.active_view().file_name() or ""
+    self.name = os.path.splitext(os.path.split(self.file_name)[1])[0]
 
     if self.file_name and os.path.exists(os.path.split(self.file_name)[0] + "\\collection.id"):
       with open(os.path.split(self.file_name)[0] + "\\collection.id") as f:
         collection = json.load(f)
-        print(os.path.splitext(os.path.split(self.file_name)[1])[0])
         if os.path.splitext(os.path.split(self.file_name)[1])[0] in collection[self.contentPlural]:
-          self.name = os.path.splitext(os.path.split(self.file_name)[1])[0]
           self.id = collection[self.contentPlural][self.name]
           self.collection_name = collection['name']
           return self.on_done(self.id)
-
+        self.window.active_view().show_popup(
+          '''<b>Unable to update Workshop Content:</b>
+          <ul>
+            <li>
+              <b>Type:</b> {}
+            </li>
+            <li>
+              <b>Name:</b> {}
+            </li>
+          </ul>
+          Could not find this alias in your collection.id'''.format(self.contentType.title(), self.name), max_width=500)
+    else:
+      self.window.active_view().show_popup(
+          '''<b>Unable to update Workshop Content:</b>
+          <ul>
+            <li>
+              <b>Type:</b> {}
+            </li>
+            <li>
+              <b>Name:</b> {}
+            </li>
+          </ul>
+          Could not find your collection.id'''.format(self.contentType.title(), self.name), max_width=500)
   def on_done(self, content_id):
     if content_id:
       view = self.window.active_view()
@@ -340,5 +366,6 @@ class makeAttack(sublime_plugin.WindowCommand):
     elif isinstance(sel, dict):
       sel = {"name": sel.get('name'), "automation": sel.get('automation'), "_v": 2}
       sublime.set_clipboard('!a import ' + json.dumps(sel))
+
 
 
