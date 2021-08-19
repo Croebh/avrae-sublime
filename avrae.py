@@ -272,29 +272,7 @@ class workshopContentUpdate(sublime_plugin.WindowCommand):
           self.id = collection[self.contentPlural][self.name]
           self.collection_name = collection['name']
           return self.on_done(self.id)
-        self.window.active_view().show_popup(
-          '''<b>Unable to update Workshop Content:</b>
-          <ul>
-            <li>
-              <b>Type:</b> {}
-            </li>
-            <li>
-              <b>Name:</b> {}
-            </li>
-          </ul>
-          Could not find this alias in your collection.id'''.format(self.contentType.title(), self.name), max_width=500)
-    else:
-      self.window.active_view().show_popup(
-          '''<b>Unable to update Workshop Content:</b>
-          <ul>
-            <li>
-              <b>Type:</b> {}
-            </li>
-            <li>
-              <b>Name:</b> {}
-            </li>
-          </ul>
-          Could not find your collection.id'''.format(self.contentType.title(), self.name), max_width=500)
+          
   def on_done(self, content_id):
     if content_id:
       view = self.window.active_view()
