@@ -3,7 +3,10 @@ import json
 import os
 import requests
 import time
+import re
 from functools import lru_cache
+
+UUID_PATTERN = re.compile(r'[\da-f]{8}-([\da-f]{4}-){3}[\da-f]{12}', re.IGNORECASE)
 
 # Basic information for any payloads we send to the REST API
 headers = {
@@ -17,34 +20,34 @@ headers = {
           }
 
 
-class gvarUpdateCommand(sublime_plugin.TextCommand):
+class gvarUpdateCommand(sublime_plugin.WindowCommand):
 
   def run(self):
     """
     Looks for a gvar ID in the filename, then updates that gvar using the contents of the active file.
     """
-    file_name  = self.view.file_name()
-    name       = self.view.name()
-    getStatus  = 0
-    postStatus = 0
-    gvarID     = None
-    payload    = self.view.substr(sublime.Region(0, self.view.size()))
+    self.file_name  = self.window.active_view().file_name()
+    self.name       = self.window.active_view().name()
+    getStatus       = 0
+    postStatus      = 0
+    gvar            = None
+    payload         = self.window.active_view().substr(sublime.Region(0, self.window.active_view().size()))
 
     # Gvars have a limit of 100,000 characters.
     if len(payload) > 100000:
-      self.view.show_popup(
+      self.window.active_view().show_popup(
         '''<b>Error: Gvars must be less than 100k characters.'''.format(gvar), max_width=400)
     else:
-      # Grab the gvar ID
-      if name and name.endswith('.gvar'):
-        if name.endswith('.gvar'):
-          gvarID = name[:36]
-      elif file_name:
-          gvarID = os.path.basename(file_name)
-          if gvarID and gvarID.endswith('.gvar'):
-              gvarID = gvarID[:36]
+
+      if self.file_name and self.file_name.endswith('.gvar'):
+        gvar = os.path.basename(self.file_name)
+      elif name and name.endswith('.gvar'):
+        gvar = name
+
+      gvarID = UUID_PATTERN.search(gvar)
       # Got an ID and it seems good to go? Awesome
-      if gvarID and len(gvarID)==36:
+      if gvarID:
+        gvarID = gvarID.group(0)
         # First we need to get the full information on the gvar, 
         get, getStatus = avraeREST("GET", "customizations/gvars/" + gvarID, ttl_hash=get_ttl_hash(5))
         # then update it with your new info and push it back
@@ -59,9 +62,9 @@ class gvarUpdateCommand(sublime_plugin.TextCommand):
               <li>
                 <b>ID:</b> {}
               </li>
-            </ul>'''.format(gvarID), max_width=400)
+            </ul>'''.format(gvarID), max_width=600)
       else:
-        self.view.show_popup("<b>Something went wrong</b><br>Invalid Gvar ID - " + str(gvarID), max_width=500)
+        self.window.active_view().show_popup("<b>Something went wrong</b><br>Invalid Gvar ID - " + str(gvarID), max_width=500)
 
 
 class gvarGetCommand(sublime_plugin.WindowCommand):
@@ -89,23 +92,25 @@ class gvarGetCommand(sublime_plugin.WindowCommand):
 
   def on_done(self, text):
     if text:
-        gvar = text.replace('\n','').strip()[:36]
-        name = text[36:].replace('.gvar','').replace('\n','')
+        gvar = UUID_PATTERN.search(text)
         view = self.window.active_view()
         getStatus = 0
         if gvar:
-            if len(gvar)==36:
-              get, getStatus = avraeREST("GET", "customizations/gvars/" + gvar, ttl_hash=get_ttl_hash(5))
-              if view.file_name() and gvar in view.file_name():
-                view.run_command('select_all')
-                view.run_command('right_delete')
-              else:
-                view = self.window.new_file()
-                view.set_name(gvar + name + '.gvar')
-                view.set_syntax_file("Packages/Avrae Utilities/Draconic.sublime-syntax")
-              view.run_command('append', {'characters' : get.json().get('value')})
+          gvar = gvar.group(0)
+          if len(gvar)==36:
+            get, getStatus = avraeREST("GET", "customizations/gvars/" + gvar, ttl_hash=get_ttl_hash(5))
+            if view.file_name() and gvar in view.file_name():
+              view.run_command('select_all')
+              view.run_command('right_delete')
             else:
-              self.view.show_popup("<b>Something went wrong</b><br>Invalid Gvar ID - " + gvar, max_width=500)
+              view = self.window.new_file()
+              view.set_name(gvar + '.gvar')
+              view.set_syntax_file("Packages/Avrae Utilities/Draconic.sublime-syntax")
+            view.run_command('append', {'characters' : get.json().get('value')})
+          else:
+            self.view.show_popup("<b>Something went wrong</b><br>Invalid Gvar ID - " + gvar, max_width=500)
+        else:
+          self.view.show_popup("<b>Something went wrong</b><br>Could not find a Gvar ID", max_width=500)
 
 class collectionGet(sublime_plugin.WindowCommand):
 
@@ -272,7 +277,10 @@ class workshopContentUpdate(sublime_plugin.WindowCommand):
           self.id = collection[self.contentPlural][self.name]
           self.collection_name = collection['name']
           return self.on_done(self.id)
-          
+    else:
+      self.window.active_view().show_popup(
+          '''<b>Something went wrong</b><br>This is not a valid collection.id''', max_width=400)
+
   def on_done(self, content_id):
     if content_id:
       view = self.window.active_view()
@@ -298,7 +306,28 @@ class workshopContentUpdate(sublime_plugin.WindowCommand):
             <li>
               <b>ID:</b> {}
             </li>
-          </ul>'''.format(self.collection_name, self.contentType.title(), self.name, self.id), max_width=400)      
+          </ul>'''.format(self.collection_name, self.contentType.title(), self.name, self.id), max_width=400)
+      else:
+        self.window.active_view().show_popup(
+          '''<b>Something went wrong:</b>
+          <ul>
+            <li>
+              <b>Status Code:</b> {}
+            </li>
+            <li>
+              <b>Collection:</b> {}
+            </li>
+            <li>
+              <b>Type:</b> {}
+            </li>
+            <li>
+              <b>Name:</b> {}
+            </li>
+            <li>
+              <b>ID:</b> {}
+            </li>
+          </ul>'''.format(getStatus, self.collection_name, self.contentType.title(), self.name, self.id), max_width=400)
+
 
 
 @lru_cache()
