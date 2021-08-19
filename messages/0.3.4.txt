@@ -1,0 +1,3 @@
+Fixed some issues with updating descriptions, and added the missing commands for snippet descriptions. Also made the gvar id searching in file names a lot more forgiving.
+
+Please read https://github.com/Croebh/avrae-sublime/blob/main/README.md for more information.
