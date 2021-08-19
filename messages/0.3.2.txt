@@ -1,0 +1,3 @@
+Added support for multiple layers of subaliases.
+
+Please read https://github.com/Croebh/avrae-sublime/blob/main/README.md for more information.
