@@ -41,8 +41,8 @@ class gvarUpdateCommand(sublime_plugin.WindowCommand):
 
       if self.file_name and self.file_name.endswith('.gvar'):
         gvar = os.path.basename(self.file_name)
-      elif name and name.endswith('.gvar'):
-        gvar = name
+      elif self.name and self.name.endswith('.gvar'):
+        gvar = self.name
 
       gvarID = UUID_PATTERN.search(gvar)
       # Got an ID and it seems good to go? Awesome
