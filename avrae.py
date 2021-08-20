@@ -156,7 +156,8 @@ class workshopInformationGet(sublime_plugin.WindowCommand):
   def run(self):
     self.id = None
     self.file_name = self.window.active_view().file_name() or ""
-    collection_file = os.path.split(self.file_name)[0] + "\\collection.id"
+    print(os.path.join(os.path.split(self.file_name)[0], "collection.id"))
+    collection_file = os.path.join(os.path.split(self.file_name)[0], "collection.id")
     if self.file_name and os.path.exists(collection_file):
       with open(collection_file) as f:
         collection = json.load(f)
@@ -185,7 +186,7 @@ class workshopInformationUpdate(sublime_plugin.WindowCommand):
     self.id = None
     self.payload = self.window.active_view().substr(sublime.Region(0, self.window.active_view().size()))
     self.file_name = self.window.active_view().file_name() or ""
-    collection_file = os.path.split(self.file_name)[0] + "\\collection.id"
+    collection_file = os.path.join(os.path.split(self.file_name)[0], "collection.id")
     if self.file_name and os.path.exists(collection_file):
       with open(collection_file) as f:
         collection = json.load(f)
@@ -219,7 +220,7 @@ class workshopContentGet(sublime_plugin.WindowCommand):
     self.contentPlural = 'aliases' if 'alias' in self.contentType else 'snippets'
     self.key = key
     self.file_name = self.window.active_view().file_name() or ""
-    collection_file = os.path.split(self.file_name)[0] + "\\collection.id"
+    collection_file = os.path.join(os.path.split(self.file_name)[0], "collection.id")
     if self.file_name and os.path.exists(collection_file):
       with open(collection_file) as f:
         collection = json.load(f)
@@ -270,8 +271,8 @@ class workshopContentUpdate(sublime_plugin.WindowCommand):
     self.file_name = self.window.active_view().file_name() or ""
     self.name = os.path.splitext(os.path.split(self.file_name)[1])[0]
 
-    if self.file_name and os.path.exists(os.path.split(self.file_name)[0] + "\\collection.id"):
-      with open(os.path.split(self.file_name)[0] + "\\collection.id") as f:
+    if self.file_name and os.path.exists(os.path.join(os.path.split(self.file_name)[0], "collection.id")):
+      with open(os.path.join(os.path.split(self.file_name)[0], "collection.id")) as f:
         collection = json.load(f)
         if os.path.splitext(os.path.split(self.file_name)[1])[0] in collection[self.contentPlural]:
           self.id = collection[self.contentPlural][self.name]
