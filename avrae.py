@@ -36,7 +36,7 @@ class gvarUpdateCommand(sublime_plugin.WindowCommand):
     # Gvars have a limit of 100,000 characters.
     if len(payload) > 100000:
       self.window.active_view().show_popup(
-        '''<b>Error: Gvars must be less than 100k characters.'''.format(gvar), max_width=400)
+        '''<b>Error: Gvars must be less than 100k characters.'''.format(gvar), max_width=600)
     else:
 
       if self.file_name and self.file_name.endswith('.gvar'):
@@ -64,7 +64,7 @@ class gvarUpdateCommand(sublime_plugin.WindowCommand):
               </li>
             </ul>'''.format(gvarID), max_width=600)
       else:
-        self.window.active_view().show_popup("<b>Something went wrong</b><br>Invalid Gvar ID - " + str(gvarID), max_width=500)
+        self.window.active_view().show_popup("<b>Something went wrong</b><br>Invalid Gvar ID - " + str(gvarID), max_width=600)
 
 
 class gvarGetCommand(sublime_plugin.WindowCommand):
@@ -108,9 +108,9 @@ class gvarGetCommand(sublime_plugin.WindowCommand):
               view.set_syntax_file("Packages/Avrae Utilities/Draconic.sublime-syntax")
             view.run_command('append', {'characters' : get.json().get('value')})
           else:
-            self.view.show_popup("<b>Something went wrong</b><br>Invalid Gvar ID - " + gvar, max_width=500)
+            self.view.show_popup("<b>Something went wrong</b><br>Invalid Gvar ID - " + gvar, max_width=600)
         else:
-          self.view.show_popup("<b>Something went wrong</b><br>Could not find a Gvar ID", max_width=500)
+          self.view.show_popup("<b>Something went wrong</b><br>Could not find a Gvar ID", max_width=600)
 
 class collectionGet(sublime_plugin.WindowCommand):
 
@@ -156,7 +156,6 @@ class workshopInformationGet(sublime_plugin.WindowCommand):
   def run(self):
     self.id = None
     self.file_name = self.window.active_view().file_name() or ""
-    print(os.path.join(os.path.split(self.file_name)[0], "collection.id"))
     collection_file = os.path.join(os.path.split(self.file_name)[0], "collection.id")
     if self.file_name and os.path.exists(collection_file):
       with open(collection_file) as f:
@@ -187,13 +186,20 @@ class workshopInformationUpdate(sublime_plugin.WindowCommand):
     self.payload = self.window.active_view().substr(sublime.Region(0, self.window.active_view().size()))
     self.file_name = self.window.active_view().file_name() or ""
     collection_file = os.path.join(os.path.split(self.file_name)[0], "collection.id")
-    if self.file_name and os.path.exists(collection_file):
+    if os.path.split(self.file_name)[1].lower() == "readme.md" and os.path.exists(collection_file):
       with open(collection_file) as f:
         collection = json.load(f)
         self.id = collection['collection']
         self.name = collection['name']
         return self.on_done(self.id)
-
+    else:
+      self.window.active_view().show_popup(
+        '''<b>Something went wrong:</b>
+        <ul>
+          <li>
+            {}
+          </li>
+        </ul>'''.format("<b>Invalid file name:</b> Looking for 'readme.md'" if not os.path.split(self.file_name)[1].lower() == "readme.md" else "Could not find 'collection.id'"), max_width=600)
   def on_done(self, content_id):
     if content_id:
       view = self.window.active_view()
@@ -210,7 +216,7 @@ class workshopInformationUpdate(sublime_plugin.WindowCommand):
               <li>
                 <b>ID:</b> {}
               </li>
-            </ul>'''.format(self.name, self.id), max_width=400)
+            </ul>'''.format(self.name, self.id), max_width=600)
 
 class workshopContentGet(sublime_plugin.WindowCommand):
 
@@ -251,7 +257,6 @@ class workshopContentGet(sublime_plugin.WindowCommand):
 
   def determineAliasFullName(self, alias:dict, curName:str):
     curName = (alias.get('name') + ' ' + curName).strip()
-    print(curName)
     if not alias.get('parent_id'):
       return curName
     get, getStatus = avraeREST("GET", "workshop/alias/" + alias.get('parent_id'), ttl_hash=get_ttl_hash(5))
@@ -280,7 +285,7 @@ class workshopContentUpdate(sublime_plugin.WindowCommand):
           return self.on_done(self.id)
     else:
       self.window.active_view().show_popup(
-          '''<b>Something went wrong</b><br>This is not a valid collection.id''', max_width=400)
+          '''<b>Something went wrong</b><br>This is not a valid collection.id''', max_width=600)
 
   def on_done(self, content_id):
     if content_id:
@@ -290,7 +295,7 @@ class workshopContentUpdate(sublime_plugin.WindowCommand):
         self.version = get.json()['data']['version']
         get, getStatus = avraeREST("put", endpoint = "workshop/{}/".format(self.contentType) + content_id + '/active-code', payload = json.dumps({"version": self.version}), ttl_hash=get_ttl_hash(5)) 
       elif self.key == 'docs':
-        get, getStatus = avraeREST("patch", endpoint = "workshop/{}/".format(self.contentType) + content_id, payload = json.dumps({"name": self.name, "docs": self.payload}), ttl_hash=get_ttl_hash(5)) 
+        get, getStatus = avraeREST("patch", endpoint = "workshop/{}/".format(self.contentType) + content_id, payload = json.dumps({"name": self.name.split()[-1], "docs": self.payload}), ttl_hash=get_ttl_hash(5)) 
       if getStatus in (200, 201):
         self.window.active_view().show_popup(
           '''<b>Successfully Updated Workshop Content:</b>
@@ -307,7 +312,7 @@ class workshopContentUpdate(sublime_plugin.WindowCommand):
             <li>
               <b>ID:</b> {}
             </li>
-          </ul>'''.format(self.collection_name, self.contentType.title(), self.name, self.id), max_width=400)
+          </ul>'''.format(self.collection_name, self.contentType.title(), self.name, self.id), max_width=600)
       else:
         self.window.active_view().show_popup(
           '''<b>Something went wrong:</b>
@@ -327,7 +332,7 @@ class workshopContentUpdate(sublime_plugin.WindowCommand):
             <li>
               <b>ID:</b> {}
             </li>
-          </ul>'''.format(getStatus, self.collection_name, self.contentType.title(), self.name, self.id), max_width=400)
+          </ul>'''.format(getStatus, self.collection_name, self.contentType.title(), self.name, self.id), max_width=600)
 
 
 
@@ -346,10 +351,10 @@ def avraeREST(type: str, endpoint: str, payload: str = None, ttl_hash = None):
   except:
     if requestStatus==403:
       print("Unsuccessfully {}: {} - Double check your token".format(type.upper(), endpoint), requestStatus)
-      view.show_popup("<b>Something went wrong - Status Code 403</b><br>Double check your token.", max_width=500)
+      view.show_popup("<b>Something went wrong - Status Code 403</b><br>Double check your token.", max_width=600)
     if requestStatus==404:
       print("Unsuccessfully {}: {} - Invalid endpoint".format(type.upper(), endpoint), requestStatus)
-      view.show_popup("<b>Something went wrong - Status Code 404</b><br>Invalid ID", max_width=500)
+      view.show_popup("<b>Something went wrong - Status Code 404</b><br>Invalid ID", max_width=600)
 
   if requestStatus in (200, 201):
     print("Successfully {}: {}".format(type.upper(), endpoint), requestStatus)
