@@ -226,6 +226,8 @@ class workshopContentGet(sublime_plugin.WindowCommand):
     self.contentPlural = 'aliases' if 'alias' in self.contentType else 'snippets'
     self.key = key
     self.file_name = self.window.active_view().file_name() or ""
+    self.name, self.extension = os.path.splitext(os.path.split(self.file_name)[1])
+
     collection_file = os.path.join(os.path.split(self.file_name)[0], "collection.id")
     if self.file_name and os.path.exists(collection_file):
       with open(collection_file) as f:
@@ -242,7 +244,7 @@ class workshopContentGet(sublime_plugin.WindowCommand):
       view.set_syntax_file("Packages/Avrae Utilities/Draconic.sublime-syntax")
       data = get.json()['data']
       self.name = data['name']
-      if self.id:
+      if self.id and self.key.lower() == (self.extension.lower() if self.key == 'code' else 'docs'):
         view.run_command('select_all')
         view.run_command('right_delete')
         view.run_command('append', {'characters' : data[self.key].replace('\r','')})
@@ -274,7 +276,7 @@ class workshopContentUpdate(sublime_plugin.WindowCommand):
     self.key = key
     self.collection_name = None
     self.file_name = self.window.active_view().file_name() or ""
-    self.name = os.path.splitext(os.path.split(self.file_name)[1])[0]
+    self.name, self.extension = os.path.splitext(os.path.split(self.file_name)[1])
 
     if self.file_name and os.path.exists(os.path.join(os.path.split(self.file_name)[0], "collection.id")):
       with open(os.path.join(os.path.split(self.file_name)[0], "collection.id")) as f:
@@ -283,6 +285,9 @@ class workshopContentUpdate(sublime_plugin.WindowCommand):
           self.id = collection[self.contentPlural][self.name]
           self.collection_name = collection['name']
           return self.on_done(self.id)
+        else:
+          self.window.active_view().show_popup(
+            '''<b>Something went wrong</b><br>This {}} is not in your collection.id'''.format(self.contentType), max_width=600)
     else:
       self.window.active_view().show_popup(
           '''<b>Something went wrong</b><br>This is not a valid collection.id''', max_width=600)

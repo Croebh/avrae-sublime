@@ -1,0 +1,5 @@
+Added an error for if the current alias/snippet isnt in your collection.id
+
+Fixed where if you tried to get alias/snippet docs while you had the alias/snippet open, it would replace the code with the docs. Now properly opens in a new tab.
+
+Please read https://github.com/Croebh/avrae-sublime/blob/main/README.md for more information.
