@@ -112,10 +112,13 @@ class gvarGetCommand(sublime_plugin.WindowCommand):
         else:
           self.view.show_popup("<b>Something went wrong</b><br>Could not find a Gvar ID", max_width=600)
 
+
 class collectionGet(sublime_plugin.WindowCommand):
 
-  def run(self):
+  def run(self, collection_id:str = None):
     self.file_name = self.window.active_view().file_name()
+    if collection_id:
+      return self.on_done(collection_id)
     if self.file_name and self.file_name.endswith('collection.id'):
       with open(self.file_name) as f:
         collection = json.load(f)
@@ -151,12 +154,43 @@ class collectionGet(sublime_plugin.WindowCommand):
     for subalias in alias.get('subcommands', {}):
       self.findSubaliases(subalias, out, curName)
 
-class workshopInformationGet(sublime_plugin.WindowCommand):
+
+class collectionGetAll(sublime_plugin.WindowCommand):
 
   def run(self):
+    self.view = self.window.active_view()
+    self.file_name = self.view.file_name() or self.view.name()
+    if self.file_name and self.file_name.endswith('collection.id'):
+      collection = json.loads(self.view.substr(sublime.Region(0, len(self.view))))
+      print(collection)
+      return self.on_done(collection)
+    else:
+      self.window.show_input_panel("Collection ID:", "", self.get_collection, None, None)
+
+  def get_collection(self, collection_id):
+    self.window.run_command('collection_get', {'collection_id': collection_id})
+    self.window.run_command('collection_get_all')
+
+  def on_done(self, collection):
+    mapping = {"aliases": "alias", "snippets": "snippet"}
+    self.window.run_command('workshop_information_get', {'collection_id': collection.get('collection')})
+    for content_type, content in collection.items():
+      content_type = mapping.get(content_type)
+      if content_type:
+        for content_id in content.values():
+          for key in ['code', 'docs']:
+            self.window.run_command('workshop_content_get', 
+              {'contentType': content_type, 'key': key, 'content_id': content_id})
+
+
+class workshopInformationGet(sublime_plugin.WindowCommand):
+
+  def run(self, collection_id:str = None):
     self.id = None
     self.file_name = self.window.active_view().file_name() or ""
     collection_file = os.path.join(os.path.split(self.file_name)[0], "collection.id")
+    if collection_id:
+      return self.on_done(collection_id)
     if self.file_name and os.path.exists(collection_file):
       with open(collection_file) as f:
         collection = json.load(f)
@@ -218,10 +252,11 @@ class workshopInformationUpdate(sublime_plugin.WindowCommand):
               </li>
             </ul>'''.format(self.name, self.id), max_width=600)
 
+
 class workshopContentGet(sublime_plugin.WindowCommand):
 
-  def run(self, contentType:str = "alias", key:str = "code"):
-    self.id = None
+  def run(self, contentType:str = "alias", key:str = "code", content_id:str = None):
+    self.id = content_id
     self.contentType = contentType
     self.contentPlural = 'aliases' if 'alias' in self.contentType else 'snippets'
     self.key = key
@@ -229,7 +264,9 @@ class workshopContentGet(sublime_plugin.WindowCommand):
     self.name, self.extension = os.path.splitext(os.path.split(self.file_name)[1])
 
     collection_file = os.path.join(os.path.split(self.file_name)[0], "collection.id")
-    if self.file_name and os.path.exists(collection_file):
+    if self.id:
+      return self.on_done(self.id)
+    elif self.file_name and os.path.exists(collection_file):
       with open(collection_file) as f:
         collection = json.load(f)
         if os.path.splitext(os.path.split(self.file_name)[1])[0] in collection[self.contentPlural]:
@@ -244,7 +281,7 @@ class workshopContentGet(sublime_plugin.WindowCommand):
       view.set_syntax_file("Packages/Avrae Utilities/Draconic.sublime-syntax")
       data = get.json()['data']
       self.name = data['name']
-      if self.id and self.key.lower() == (self.extension.lower() if self.key == 'code' else 'docs'):
+      if self.id and self.key.lower() == (self.extension.lower() if self.key == 'code' else 'md'):
         view.run_command('select_all')
         view.run_command('right_delete')
         view.run_command('append', {'characters' : data[self.key].replace('\r','')})
@@ -340,7 +377,6 @@ class workshopContentUpdate(sublime_plugin.WindowCommand):
           </ul>'''.format(getStatus, self.collection_name, self.contentType.title(), self.name, self.id), max_width=600)
 
 
-
 @lru_cache()
 def avraeREST(type: str, endpoint: str, payload: str = None, ttl_hash = None):
   del ttl_hash
@@ -367,6 +403,7 @@ def avraeREST(type: str, endpoint: str, payload: str = None, ttl_hash = None):
 
   return request, requestStatus
 
+
 def get_ttl_hash(seconds=900):
     """Return the same value within `seconds` time period"""
     return round(time.time() / seconds)
@@ -385,6 +422,7 @@ class makeAttack(sublime_plugin.WindowCommand):
       sel = {"name": sel.get('name'), "automation": sel.get('automation'), "_v": 2}
       sublime.set_clipboard('!a import ' + json.dumps(sel))
 
+
 class makeSpell(sublime_plugin.WindowCommand):
 
   def run(self):
@@ -396,6 +434,3 @@ class makeSpell(sublime_plugin.WindowCommand):
     # Otherwise try to grab the name of the actual spell
     elif isinstance(sel, dict):
       sublime.set_clipboard('{"name":' + json.dumps(sel.get('name'))[:-1] + ' (Test)","level":1,"school":"A","automation":' + json.dumps(sel.get('automation')) + ',"classes":"Testers","subclasses":"","casttime":"Instant","range":"self","components":{"verbal":true,"somatic":true,"material":""},"duration":"10","ritual":false,"description":"Stuff!","higherlevels":"","concentration":false}')
-
-
-

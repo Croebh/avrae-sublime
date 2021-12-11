@@ -20,6 +20,10 @@
     "command": "collection_get"
   },
   {
+    "caption": "Avrae Utilities: Get Collection (All Content)",
+    "command": "collection_get_all"
+  },
+  {
     "caption": "Avrae Utilities: Get Collection Description",
     "command": "workshop_information_get"
   },

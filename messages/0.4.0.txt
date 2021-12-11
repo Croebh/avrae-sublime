@@ -1,0 +1,7 @@
+PROPERLY Fixed where if you tried to get alias/snippet docs while you had the alias/snippet open, it would replace the code with the docs. Now properly opens in a new tab.
+
+Added new command: Avrae Utilities: Get Collection (All Content)
+
+This command allows you to quickly get *all* of the content from a collection. Every alias, snippet, docs for both, and the collection docs as well.
+
+Please read https://github.com/Croebh/avrae-sublime/blob/main/README.md for more information.
