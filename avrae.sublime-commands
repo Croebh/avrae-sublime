@@ -12,6 +12,10 @@
     "command": "make_attack"
   },
   {
+    "caption": "Avrae Utilities: Copy Spell",
+    "command": "make_spell"
+  },
+  {
     "caption": "Avrae Utilities: Get Collection Data",
     "command": "collection_get"
   },

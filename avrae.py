@@ -385,5 +385,17 @@ class makeAttack(sublime_plugin.WindowCommand):
       sel = {"name": sel.get('name'), "automation": sel.get('automation'), "_v": 2}
       sublime.set_clipboard('!a import ' + json.dumps(sel))
 
+class makeSpell(sublime_plugin.WindowCommand):
+
+  def run(self):
+    sel = self.window.active_view().substr(self.window.active_view().sel()[0])
+    sel = json.loads(sel)
+    # If we just have the automation portion selected, name it test
+    if isinstance(sel, list):
+      sublime.set_clipboard('{"name":"Test","level":1,"school":"A","automation":' + json.dumps(sel) + ',"classes":"Testers","subclasses":"","casttime":"Instant","range":"self","components":{"verbal":true,"somatic":true,"material":""},"duration":"10","ritual":false,"description":"Stuff!","higherlevels":"","concentration":false}')
+    # Otherwise try to grab the name of the actual spell
+    elif isinstance(sel, dict):
+      sublime.set_clipboard('{"name":' + json.dumps(sel.get('name'))[:-1] + ' (Test)","level":1,"school":"A","automation":' + json.dumps(sel.get('automation')) + ',"classes":"Testers","subclasses":"","casttime":"Instant","range":"self","components":{"verbal":true,"somatic":true,"material":""},"duration":"10","ritual":false,"description":"Stuff!","higherlevels":"","concentration":false}')
+
 
 
