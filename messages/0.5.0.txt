@@ -1,0 +1,5 @@
+Now treats all gvars as just python. This fixes an issue with module gvars, where it would default to json. Json looks fine in python highlighting anyways!
+
+Additionally, made a small change to `Copy Attack`, making it try to add "Test " to the start of the attack name
+
+Please read https://github.com/Croebh/avrae-sublime/blob/main/README.md for more information.
