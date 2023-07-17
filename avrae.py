@@ -414,13 +414,22 @@ class makeAttack(sublime_plugin.WindowCommand):
   def run(self):
     sel = self.window.active_view().substr(self.window.active_view().sel()[0])
     sel = json.loads(sel)
+    try:
+      sel['name'] += " Test"
+    except:
+      ...
+    sel_text = json.dumps(sel)
+
+    regex = r"\"text\": \"(.+?)\""
+    subst = "\"text\": \"Text Here\""
+    sel_text = re.sub(regex, subst, sel_text, 0, re.MULTILINE)
     # If we just have the automation portion selected, name it test
     if isinstance(sel, list):
-      sublime.set_clipboard('!a import {"name": "Test", "automation":' + json.dumps(sel) + ',"_v": 2}')
+      sublime.set_clipboard('!a import {"name": "Test", "automation":' + sel_text + ',"_v": 2}')
     # Otherwise try to grab the name of the actual attack/action
     elif isinstance(sel, dict):
-      sel = {"name": sel.get('name'), "automation": sel.get('automation'), "_v": 2}
-      sublime.set_clipboard('!a import ' + json.dumps(sel))
+      # sel = {"name": sel.get('name'), "automation": sel.get('automation'), "_v": 2}
+      sublime.set_clipboard('!a import ' + sel_text)
 
 
 class makeSpell(sublime_plugin.WindowCommand):
