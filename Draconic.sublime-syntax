@@ -1,18 +1,14 @@
 %YAML 1.2
 ---
 # See http://www.sublimetext.com/docs/3/syntax.html
-file_extensions: [alias, snippet, gvar]
+file_extensions: [alias, snippet]
 scope: source.draconic
 contexts:
   main:
     - include : avrae
     - include : drac
-    - match: '\A{'
-      embed: scope:source.json
-      escape: '}\z'
-    - match: '\A\['
-      embed: scope:source.json
-      escape: '\]\z'
+    - match: '\A#'
+      scope: source.python
     - match: (<)[^<>]+(>)
       scope: entity.name.constant.draconic
     - match: ({)[^{}]+(})
