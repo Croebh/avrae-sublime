@@ -105,7 +105,7 @@ class gvarGetCommand(sublime_plugin.WindowCommand):
             else:
               view = self.window.new_file()
               view.set_name(gvar + '.gvar')
-              view.set_syntax_file("Packages/Avrae Utilities/Draconic.sublime-syntax")
+              view.set_syntax_file("Packages/Python/Python.tmLanguage")
             view.run_command('append', {'characters' : get.json().get('value')})
           else:
             self.view.show_popup("<b>Something went wrong</b><br>Invalid Gvar ID - " + gvar, max_width=600)
@@ -136,23 +136,18 @@ class collectionGet(sublime_plugin.WindowCommand):
                  "aliases": {},
                  "snippets": {}}
       for alias in data.get('aliases', {}):
-        self.findSubaliases(alias, id_dict, "")
+        findSubaliases(alias, id_dict, "")
       for snippet in data.get('snippets', {}):
         id_dict['snippets'][snippet.get('name')] = snippet.get('_id')
+
       if view.file_name() and 'collection.id' in view.file_name():
         view.run_command('select_all')
         view.run_command('right_delete')
       else:
         view = self.window.new_file()
         view.set_name('collection.id')
-      view.run_command('append', {'characters' : json.dumps(id_dict, indent=2)})
+      view.run_command('append', {'characters' : json.dumps(id_dict, indent=2, sort_keys=True)})
 
-
-  def findSubaliases(self, alias:dict, out:dict, curName:str):
-    curName = (curName + ' ' + alias['name']).strip()
-    out['aliases'][curName] = alias['_id']
-    for subalias in alias.get('subcommands', {}):
-      self.findSubaliases(subalias, out, curName)
 
 
 class collectionGetAll(sublime_plugin.WindowCommand):
@@ -443,3 +438,127 @@ class makeSpell(sublime_plugin.WindowCommand):
     # Otherwise try to grab the name of the actual spell
     elif isinstance(sel, dict):
       sublime.set_clipboard('{"name":' + json.dumps(sel.get('name'))[:-1] + ' (Test)","level":1,"school":"A","automation":' + json.dumps(sel.get('automation')) + ',"classes":"Testers","subclasses":"","casttime":"Instant","range":"self","components":{"verbal":true,"somatic":true,"material":""},"duration":"10","ritual":false,"description":"Stuff!","higherlevels":"","concentration":false}')
+
+
+class avraeCollectWorkshopData(sublime_plugin.WindowCommand):
+    def run(self):
+        collections = []
+        for page in range(1, 50):
+            print("Grabbing page", page)
+            get, getStatus = avraeREST(
+                "GET", "workshop/explore?order=newest&page=" + str(page), ttl_hash=get_ttl_hash(10)
+            )
+            if not get.json()["data"]:
+                break
+            collections_get, collections_status = avraeREST(
+                "GET",
+                "workshop/collection/batch?c=" + ",".join(get.json()["data"]),
+                ttl_hash=get_ttl_hash(10),
+            )
+            collections += collections_get.json()["data"]
+
+        out = {}
+        for collection in collections:
+            desc = collection["description"]
+            if len(desc) >= 500:
+              desc = desc[:485] + "... [truncated]"
+            out[collection["name"]] = {
+                "id": collection["_id"],
+                "tags": collection.get("tags", []),
+                "o": collection["owner"],
+                "desc": desc,
+            }
+
+        big_chunk = list(out.items())
+        quarter = (len(big_chunk) // 4) + 1
+        chunks = [dict(big_chunk[i:i+quarter]) for i in range(0, len(big_chunk), quarter)]
+        gvars = ["af2fd307-8ab2-4e97-97f5-459d11fccc62", "45847d6d-f102-49b3-9249-b2a22dd9f6de", "147f7760-bfe0-4d5a-8ed0-aac7dfd654c8", "41df9bc5-93a5-4311-a52e-cf52a6201836"]
+        for i, chunk in enumerate(chunks):
+          gvar_id = gvars[i]
+          if len(json.dumps(chunk, separators=(',', ':'))) < 100000:
+              get, getStatus = avraeREST(
+                  "GET",
+                  "customizations/gvars/{}".format(gvar_id),
+                  ttl_hash=get_ttl_hash(5),
+              )
+              newPayload = get.json()
+              newPayload.update({"value": json.dumps(chunk, separators=(',', ':'))})
+              post, postStatus = avraeREST(
+                  "POST",
+                  "customizations/gvars/{}".format(gvar_id),
+                  json.dumps(newPayload, separators=(',', ':')),
+                  ttl_hash=get_ttl_hash(5),
+              )
+              if postStatus in (200, 201):
+                  self.window.active_view().show_popup(
+                      """<b>Successfully Updated Gvar:</b>
+              <ul>
+                <li>
+                  <b>ID:</b> {}
+                </li>
+              </ul>""".format(gvar_id),
+                      max_width=400,
+                  )
+                  print("Done!")
+          else:
+              print(len(json.dumps(chunk, separators=(',', ':'))))
+              self.window.active_view().show_popup(
+                  """<b>Error: Gvars must be less than 100k characters.""", max_width=400
+              )
+              print("Error!")
+
+
+def findSubaliases(alias:dict, out:dict, curName:str):
+  curName = (curName + ' ' + alias['name']).strip()
+  out['aliases'][curName] = alias['_id']
+  for subalias in alias.get('subcommands', {}):
+    findSubaliases(subalias, out, curName)
+
+
+class collectionGetContent(sublime_plugin.WindowCommand):
+
+  def run(self, collection_id:str = None):
+    self.file_name = self.window.active_view().file_name()
+    if collection_id:
+      return self.on_done(collection_id)
+    if self.file_name and self.file_name.endswith('collection.id'):
+      with open(self.file_name) as f:
+        collection = json.load(f)
+      return self.on_done(collection.get('collection'))
+    self.window.show_input_panel("Collection ID:", "", self.on_done, None, None)
+
+  def on_done(self, text):
+    if text:
+      view = self.window.active_view()
+      get, getStatus = avraeREST("GET", "workshop/collection/" + text + '/full', ttl_hash=get_ttl_hash(5))
+      view.set_syntax_file("Packages/Avrae Utilities/Draconic.sublime-syntax")
+      self.data = get.json()['data']
+      id_dict = {"name": self.data['name'], 
+                 "collection": text, 
+                 "aliases": {},
+                 "snippets": {}}
+      for alias in self.data.get('aliases', {}):
+        findSubaliases(alias, id_dict, "")
+      for snippet in self.data.get('snippets', {}):
+        id_dict['snippets'][snippet.get('name')] = snippet.get('_id')
+
+      self.info = []
+      for type_ in ['aliases', 'snippets']:
+        cur_type = [sublime.QuickPanelItem(name, type_ + " - " + id_,)
+          for name, id_ in id_dict[type_].items()
+        ]
+        self.info.extend(cur_type)
+
+      self.info.sort(key=lambda x: (x.trigger, x.details))
+
+      self.window.show_quick_panel(self.info, self.selected)
+
+  def selected(self, index):
+        if index != -1:
+            data = self.info[index]
+            type_, id_ = data.details.split(' - ')
+            if type_ == "aliases":
+              type_ = "alias"
+            else:
+              type_ = "snippet"
+            self.window.run_command("workshop_content_get", {'contentType': type_, 'content_id': id_ })
