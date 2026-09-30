@@ -381,16 +381,17 @@ def avraeREST(type: str, endpoint: str, payload: str = None, ttl_hash = None):
   headers['Authorization'] = token
   url = '/'.join(["https://api.avrae.io", endpoint]).strip('/')
 
+  request = None
+  requestStatus = None
   try:
     request = requests.request(type.upper(), url , headers=headers, data = payload)
     requestStatus = request.status_code
-  except:
-    if requestStatus==403:
-      print("Unsuccessfully {}: {} - Double check your token".format(type.upper(), endpoint), requestStatus)
-      view.show_popup("<b>Something went wrong - Status Code 403</b><br>Double check your token.", max_width=600)
-    if requestStatus==404:
-      print("Unsuccessfully {}: {} - Invalid endpoint".format(type.upper(), endpoint), requestStatus)
-      view.show_popup("<b>Something went wrong - Status Code 404</b><br>Invalid ID", max_width=600)
+  except requests.RequestException as e:
+    print("Request failed {}: {} - {}".format(type.upper(), endpoint, e))
+    view = sublime.active_window().active_view()
+    if view:
+      view.show_popup("<b>Request failed</b><br>{}: {}<br>{}<br>Check your token and network.".format(type.upper(), endpoint, e), max_width=600)
+    return request, requestStatus
 
   if requestStatus in (200, 201):
     print("Successfully {}: {}".format(type.upper(), endpoint), requestStatus)
